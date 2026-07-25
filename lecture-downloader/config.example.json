@@ -1,0 +1,24 @@
+{
+  "download_dir": "~/Downloads/CyberLaunch Lectures",
+  "state_dir": "~/.local/share/lecture-downloader",
+  "timeout_seconds": 30,
+  "max_file_size_mb": 100,
+  "extensions": [".pdf", ".ppt", ".pptx", ".key", ".doc", ".docx"],
+  "courses": [
+    {
+      "name": "COURSE 101",
+      "folder": "COURSE 101",
+      "sources": [
+        "https://campuswire.com/c/COURSE-ID/modules/files"
+      ],
+      "allowed_hosts": [
+        "files.campuswire.com"
+      ],
+      "tab_names": ["All Files"],
+      "auth": {
+        "headers_from_env": {},
+        "cookies_from_env": {}
+      }
+    }
+  ]
+}

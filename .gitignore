@@ -30,6 +30,7 @@ output/
 downloads/
 reports/generated/
 hurricane-tracker/output/
+lecture-downloader/config.json
 
 # Machine-learning datasets and models
 *.pkl
