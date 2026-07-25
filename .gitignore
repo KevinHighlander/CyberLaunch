@@ -29,6 +29,7 @@ secrets.json
 output/
 downloads/
 reports/generated/
+hurricane-tracker/output/
 
 # Machine-learning datasets and models
 *.pkl

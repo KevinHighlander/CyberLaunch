@@ -1,1 +1,2 @@
-#No Additional Requirements are needed, as this uses native Python scripts
+# No third-party packages are required.
+# This project uses only the Python 3 standard library.

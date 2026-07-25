@@ -1,0 +1,27 @@
+ATLANTIC HURRICANE TRACKER
+============================
+Generated: 2026-07-24 12:00 UTC (sample data)
+Mode: OFFLINE DEMONSTRATION
+
+ACTIVE-CYCLONE ADVISORY PRODUCTS
+--------------------------------
+- Hurricane Example Public Advisory Number 8
+  Issued: Fri, 24 Jul 2026 12:00:00 GMT
+  Example is moving northwest. This is demonstration data only.
+  More: https://www.nhc.noaa.gov/
+
+ATLANTIC FORMATION OUTLOOK
+---------------------------
+- Atlantic 7-Day Graphical Tropical Weather Outlook
+  Issued: Fri, 24 Jul 2026 12:00:00 GMT
+  Demonstration outlook: formation chance is low (20 percent).
+  More: https://www.nhc.noaa.gov/gtwo.php
+
+DATA NOTES
+----------
+- Atlantic advisory feed: https://www.nhc.noaa.gov/index-at.xml
+- Atlantic outlook feed: https://www.nhc.noaa.gov/xml/TWOAT.xml
+- Official NHC website: https://www.nhc.noaa.gov/
+- This report uses fictional sample entries and is not weather information.
+- This educational tool is not an emergency-alert service.
+- For safety decisions, use current NHC products and local emergency instructions.
