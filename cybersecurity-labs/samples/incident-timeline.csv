@@ -1,0 +1,5 @@
+time_utc,source,event,assessment
+2026-07-24T14:05:44Z,LAB-WIN-01 Security log,Failed sign-in for [ACCOUNT-02],Confirmed observation
+2026-07-24T14:06:10Z,Help desk note,User reported an unexpected sign-in prompt,Confirmed report
+2026-07-24T14:10:00Z,Analyst action,Preserved sanitized event export,Confirmed action
+2026-07-24T14:20:00Z,Analyst assessment,Events may be related,Working hypothesis

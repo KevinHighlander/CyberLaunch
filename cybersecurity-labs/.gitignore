@@ -1,0 +1,17 @@
+# Keep unsanitized working reports out of Git.
+**/REPORT.private.md
+**/evidence-log.private.csv
+
+# Local baselines and collected logs.
+*.baseline.json
+collected/
+raw-evidence/
+
+# Python and operating-system artifacts.
+__pycache__/
+*.py[cod]
+.DS_Store
+
+# Editor settings.
+.vscode/
+.idea/

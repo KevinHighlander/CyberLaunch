@@ -1,0 +1,8 @@
+# Example output after one authorized addition, modification, and rename.
+Added: 2
+  + inventory.removed
+  + policy-copy.txt
+Modified: 1
+  ~ policy.txt
+Deleted: 1
+  - inventory.txt

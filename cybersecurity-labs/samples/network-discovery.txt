@@ -1,0 +1,14 @@
+# Synthetic output; not collected from a real network.
+Nmap scan report for LAB-GATEWAY (192.168.56.1)
+Host is up.
+MAC Address: 00:00:5E:00:53:01 (Documentation Example)
+
+Nmap scan report for LAB-LINUX-01 (192.168.56.10)
+Host is up.
+MAC Address: 00:00:5E:00:53:10 (Documentation Example)
+
+Nmap scan report for LAB-WIN-01 (192.168.56.20)
+Host is up.
+MAC Address: 00:00:5E:00:53:20 (Documentation Example)
+
+Nmap done: 256 IP addresses (3 hosts up) scanned.

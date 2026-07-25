@@ -1,0 +1,2 @@
+Training policy version 1
+Changes to this file are authorized only during Lab 06.

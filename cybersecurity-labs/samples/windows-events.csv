@@ -1,0 +1,4 @@
+TimeCreated,Id,ProviderName,LevelDisplayName,Message
+2026-07-24T14:02:11Z,4624,Microsoft-Windows-Security-Auditing,Information,"An account was successfully logged on. Account Name: [ACCOUNT-01]; Source Network Address: 192.0.2.25"
+2026-07-24T14:05:44Z,4625,Microsoft-Windows-Security-Auditing,Information,"An account failed to log on. Account Name: [ACCOUNT-02]; Source Network Address: 192.0.2.99"
+2026-07-24T14:08:03Z,4688,Microsoft-Windows-Security-Auditing,Information,"A new process has been created. New Process Name: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe"

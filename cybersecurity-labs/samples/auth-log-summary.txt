@@ -1,0 +1,9 @@
+# Expected output from the synthetic Linux authentication sample.
+Authentication event summary
+  accepted_ssh: 1
+  failed_ssh: 2
+  invalid_user: 2
+  sudo: 1
+Source addresses observed
+  192.0.2.25: 1 event(s)
+  192.0.2.99: 2 event(s)

@@ -1,0 +1,2 @@
+evidence_id,collected_utc,collector,source,description,sha256,storage_location,notes
+EVID-001,YYYY-MM-DDTHH:MM:SSZ,[ANALYST],LAB-HOST-01,[DESCRIPTION],[SHA256],[SECURE-LOCATION],[NOTES]
