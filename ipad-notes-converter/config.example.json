@@ -1,0 +1,23 @@
+{
+  "inbox": "/Users/YOUR_NAME/Library/Mobile Documents/com~apple~CloudDocs/Note Exports",
+  "destination": "/Users/YOUR_NAME/Library/Mobile Documents/com~apple~CloudDocs/Organized Notes",
+  "default_subject": "_Unsorted",
+  "poll_interval_seconds": 10,
+  "settle_seconds": 2,
+  "keep_originals": false,
+  "log_file": "./logs/ipad-notes-converter.log",
+  "subjects": {
+    "Math": {
+      "folder": "Math Assignments",
+      "keywords": ["math", "algebra", "calculus", "statistics"]
+    },
+    "English": {
+      "folder": "English",
+      "keywords": ["english", "essay", "literature"]
+    },
+    "Cybersecurity": {
+      "folder": "Cybersecurity",
+      "keywords": ["cyber", "security", "forensics", "networking"]
+    }
+  }
+}
