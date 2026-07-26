@@ -9,3 +9,4 @@ def load_text_file(file_path: str | Path) -> str:
         raise ValueError("Writing samples must be .txt files.")
 
     return path.read_text(encoding="utf-8")
+

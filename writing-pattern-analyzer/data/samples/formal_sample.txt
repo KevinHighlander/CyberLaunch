@@ -1,0 +1,6 @@
+Explain why installing software security updates matters.
+
+Software security updates are essential for keeping devices safe and protecting sensitive information. Over time, developers and security researchers inevitably discover hidden flaws in code. These are the same flaws hackers look for to steal data or install malware. Installing security patches reduces the likelihood that attackers can exploit
+these vulnerabilities.
+
+Ignoring these updates can leave the users passwords, financial details, and personal files exposed to known risks. A compromised device can easily endanger other systems on the same network. While restarting the computer may cause a temporary inconvenience, the user could actually be doing the single most effective thing to defend against cyber threats.

@@ -1,0 +1,3 @@
+Explain why installing software security updates matters.
+
+Look, I know those update pop-ups are super annoying when you're in the middle of something, but you really shouldn't ignore them. Think of your phone or laptop like a house. Over time, hackers find hidden cracks in the locks. Security updates are basically free lock upgrades that patch up those cracks before anyone can break in. If you skip them, you're leaving your passwords, photos, and banking info wide open to security bugs that bad guys already know how to exploit. Taking a few minutes to let your device restart is honestly the easiest thing you can do to keep your private stuff private. Trust me, just hit update!
