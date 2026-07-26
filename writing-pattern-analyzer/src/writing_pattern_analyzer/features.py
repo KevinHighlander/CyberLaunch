@@ -6,6 +6,10 @@ def tokenize_words(text: str) -> list[str]:
     pattern = r"[A-Za-z]+(?:['’-][A-Za-z]+)*"
     return re.findall(pattern, text.lower())
 
+def tokenize_sentences(text: str) -> list[str]:
+    """Split text into nonempty sentences using ending punctuation."""
+    pieces = re.split(r"[.!?]+", text)
+    return [piece.strip() for piece in pieces if piece.strip()]
 
 def count_words(text: str) -> int:
     """Return the number of word tokens in text."""
@@ -16,7 +20,6 @@ def count_unique_words(text: str) -> int:
     tokens = tokenize_words(text)
     return len(set(tokens))
 
-
 def vocabulary_richness(text: str) -> float:
     """Return the proportion of word tokens that are unique."""
     tokens = tokenize_words(text)
@@ -25,3 +28,14 @@ def vocabulary_richness(text: str) -> float:
         return 0.0
 
     return len(set(tokens)) / len(tokens)
+
+def average_sentence_length(text: str) -> float:
+    """Return the average number of words per sentence."""
+    sentences = tokenize_sentences(text)
+
+    if not sentences:
+        return 0.0
+
+    word_counts = [count_words(sentence) for sentence in sentences]
+    return sum(word_counts) / len(word_counts)
+

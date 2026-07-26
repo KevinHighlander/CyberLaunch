@@ -1,7 +1,13 @@
 import unittest
 
-from writing_pattern_analyzer.features import ( count_unique_words, count_words, tokenize_words, vocabulary_richness,)
-
+from writing_pattern_analyzer.features import (
+    average_sentence_length,
+    count_unique_words,
+    count_words,
+    tokenize_sentences,
+    tokenize_words,
+    vocabulary_richness,
+)
 
 class TestCountWords(unittest.TestCase):
 
@@ -52,5 +58,25 @@ class TestVocabularyFeatures(unittest.TestCase):
         result = vocabulary_richness("   \n\t")
         self.assertEqual(result, 0.0) 
 
+class TestSentenceFeatures(unittest.TestCase):
+
+    def test_tokenizes_different_endings(self):
+        result = tokenize_sentences("Hello! How are you? I am well.")
+        self.assertEqual(result, ["Hello", "How are you", "I am well"])
+
+    def test_ignores_repeated_punctuation(self):
+        result = tokenize_sentences("Really?! Yes!!!")
+        self.assertEqual(result, ["Really", "Yes"])
+
+    def test_calculates_average_sentence_length(self):
+        result = average_sentence_length(
+            "Birds fly. Some birds fly south."
+        )
+        self.assertAlmostEqual(result, 3.0)
+
+    def test_empty_text_has_zero_average(self):
+        result = average_sentence_length("")
+        self.assertEqual(result, 0.0)
+        
 if __name__ == "__main__":
     unittest.main()
