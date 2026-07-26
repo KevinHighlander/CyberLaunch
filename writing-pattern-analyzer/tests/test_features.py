@@ -8,6 +8,10 @@ from writing_pattern_analyzer.features import (
     tokenize_sentences,
     tokenize_words,
     vocabulary_richness,
+    punctuation_counts,
+    punctuation_rates,
+    count_sentences,
+    extract_features,
 )
 
 class TestCountWords(unittest.TestCase):
@@ -93,5 +97,56 @@ class TestWordLengthFeatures(unittest.TestCase):
         result = average_word_length("")
         self.assertEqual(result, 0.0)
 
+class TestPunctuationFeatures(unittest.TestCase):
+
+    def test_counts_selected_punctuation(self):
+        result = punctuation_counts("Wait, don't re-enter; really?!")
+
+        self.assertEqual(result["commas"], 1)
+        self.assertEqual(result["semicolons"], 1)
+        self.assertEqual(result["question_marks"], 1)
+        self.assertEqual(result["exclamation_marks"], 1)
+        self.assertEqual(result["apostrophes"], 1)
+        self.assertEqual(result["hyphens"], 1)
+
+    def test_counts_curly_apostrophe(self):
+        result = punctuation_counts("It’s fine.")
+        self.assertEqual(result["apostrophes"], 1)
+        self.assertEqual(result["periods"], 1)
+
+    def test_normalizes_punctuation_per_100_words(self):
+        result = punctuation_rates("One, two three four.")
+        self.assertAlmostEqual(result["commas"], 25.0)
+        self.assertAlmostEqual(result["periods"], 25.0)
+
+    def test_empty_text_has_zero_rates(self):
+        result = punctuation_rates("")
+        self.assertTrue(all(rate == 0.0 for rate in result.values()))
+
+class TestFeatureExtraction(unittest.TestCase):
+
+    def test_counts_sentences(self):
+        result = count_sentences("One sentence. Another sentence!")
+        self.assertEqual(result, 2)
+
+    def test_extracts_complete_profile(self):
+        result = extract_features("Hello, world! Hello again.")
+
+        self.assertEqual(result["word_count"], 4)
+        self.assertEqual(result["unique_word_count"], 3)
+        self.assertEqual(result["sentence_count"], 2)
+        self.assertAlmostEqual(result["vocabulary_richness"], 0.75)
+        self.assertAlmostEqual(result["average_word_length"], 5.0)
+        self.assertAlmostEqual(result["average_sentence_length"], 2.0)
+        self.assertAlmostEqual(result["commas_per_100_words"], 25.0)
+
+    def test_extracts_empty_profile_safely(self):
+        result = extract_features("")
+
+        self.assertEqual(result["word_count"], 0)
+        self.assertEqual(result["sentence_count"], 0)
+        self.assertEqual(result["vocabulary_richness"], 0.0)
+        self.assertEqual(result["average_word_length"], 0.0)
+                
 if __name__ == "__main__":
     unittest.main()

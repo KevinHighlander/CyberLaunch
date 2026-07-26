@@ -55,3 +55,52 @@ def average_word_length(text: str) -> float:
 
     return total_letters / len(tokens)
 
+def punctuation_counts(text: str) -> dict[str, int]:
+    """Return raw counts for selected punctuation categories."""
+    return {
+        "periods": text.count("."),
+        "commas": text.count(","),
+        "semicolons": text.count(";"),
+        "colons": text.count(":"),
+        "question_marks": text.count("?"),
+        "exclamation_marks": text.count("!"),
+        "apostrophes": text.count("'") + text.count("’"),
+        "hyphens": text.count("-"),
+    }
+
+def punctuation_rates(text: str) -> dict[str, float]:
+    """Return punctuation occurrences per 100 words."""
+    counts = punctuation_counts(text)
+    total_words = count_words(text)
+
+    if total_words == 0:
+        return {name: 0.0 for name in counts}
+
+    return {
+        name: count / total_words * 100
+        for name, count in counts.items()
+    }
+
+def count_sentences(text: str) -> int:
+    """Return the number of detected sentences."""
+    return len(tokenize_sentences(text))
+
+def extract_features(text: str) -> dict[str, int | float]:
+    """Extract the complete stylometric feature profile for text."""
+    features = {
+        "word_count": count_words(text),
+        "unique_word_count": count_unique_words(text),
+        "sentence_count": count_sentences(text),
+        "vocabulary_richness": vocabulary_richness(text),
+        "average_word_length": average_word_length(text),
+        "average_sentence_length": average_sentence_length(text),
+    }
+
+    rates = punctuation_rates(text)
+
+    for name, rate in rates.items():
+        feature_name = f"{name}_per_100_words"
+        features[feature_name] = rate
+
+    return features
+
