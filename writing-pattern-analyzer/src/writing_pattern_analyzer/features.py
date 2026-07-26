@@ -39,3 +39,19 @@ def average_sentence_length(text: str) -> float:
     word_counts = [count_words(sentence) for sentence in sentences]
     return sum(word_counts) / len(word_counts)
 
+def average_word_length(text: str) -> float:
+    """Return the average number of letters per word token."""
+    tokens = tokenize_words(text)
+
+    if not tokens:
+        return 0.0
+
+    total_letters = 0
+
+    for token in tokens:
+        for character in token:
+            if character.isalpha():
+                total_letters += 1
+
+    return total_letters / len(tokens)
+

@@ -3,6 +3,7 @@ import unittest
 from writing_pattern_analyzer.features import (
     average_sentence_length,
     count_unique_words,
+    average_word_length,
     count_words,
     tokenize_sentences,
     tokenize_words,
@@ -77,6 +78,20 @@ class TestSentenceFeatures(unittest.TestCase):
     def test_empty_text_has_zero_average(self):
         result = average_sentence_length("")
         self.assertEqual(result, 0.0)
-        
+
+class TestWordLengthFeatures(unittest.TestCase):
+
+    def test_calculates_average_word_length(self):
+        result = average_word_length("Cat runs.")
+        self.assertAlmostEqual(result, 3.5)
+
+    def test_ignores_internal_punctuation(self):
+        result = average_word_length("Don't re-use code.")
+        self.assertAlmostEqual(result, 13 / 3)
+
+    def test_empty_text_has_zero_average(self):
+        result = average_word_length("")
+        self.assertEqual(result, 0.0)
+
 if __name__ == "__main__":
     unittest.main()
