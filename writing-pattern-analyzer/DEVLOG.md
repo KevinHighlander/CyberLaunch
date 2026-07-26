@@ -17,3 +17,15 @@ Technology today is not capable of 100% AI detection, this is merely a writing p
 ### What part of the project structure is currently least familiar to me?
 
 The tests folder is currently the least familiar to me. I understand that it will check whether the program works correctly, but I do not yet understand how a test file runs the code from the src folder. 
+
+### What is "text.split()" and what does it do? ###
+
+text.split() separates text into pieces wherever it finds whitespace, then counts to pieces.
+
+### Why does converting "Python", "PYTHON", and "python" to lowercase help us compare vocabulary? ###
+
+Converting words to lowercase ensures that differently capitalized versions
+of the same word are counted as one vocabulary item. This makes vocabulary
+comparisons more consistent.
+
+NOTE: There is an interesting tradeoff: capitalization itself can reveal writing habits. We’re removing it for vocabulary comparison, but we can measure unusual capitalization separately later. This is an important lesson in stylometry: preprocessing simplifies the text, but it can also remove potentially useful information.
