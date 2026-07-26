@@ -3,6 +3,7 @@ import unittest
 from pathlib import Path
 
 from writing_pattern_analyzer.comparison import (
+    calculate_feature_similarity,
     compare_feature_values,
     compare_files,
     compare_texts,
@@ -47,8 +48,24 @@ class TestComparison(unittest.TestCase):
             self.assertIn("vocabulary_richness", result)
             self.assertIn("exclamation_marks_per_100_words", result)
 
+    def test_identical_values_have_full_similarity(self):
+        result = calculate_feature_similarity(5.0, 5.0)
+        self.assertEqual(result, 1.0)
+
+    def test_zero_and_positive_value_have_no_similarity(self):
+        result = calculate_feature_similarity(0.0, 5.0)
+        self.assertEqual(result, 0.0)
+
+    def test_two_zero_values_match(self):
+        result = calculate_feature_similarity(0.0, 0.0)
+        self.assertEqual(result, 1.0)
+
+    def test_similarity_is_scale_independent(self):
+        small_scale = calculate_feature_similarity(4.0, 6.0)
+        large_scale = calculate_feature_similarity(40.0, 60.0)
+
+        self.assertAlmostEqual(small_scale, 0.8)
+        self.assertAlmostEqual(large_scale, 0.8)
 
 if __name__ == "__main__":
     unittest.main()
-
-    

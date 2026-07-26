@@ -18,6 +18,22 @@ STYLE_FEATURES = (
     "hyphens_per_100_words",
 )
 
+def calculate_feature_similarity(
+    value_a: int | float,
+    value_b: int | float,
+) -> float:
+    """Return a scale-independent similarity from 0.0 to 1.0."""
+    sample_a = float(value_a)
+    sample_b = float(value_b)
+
+    if sample_a < 0 or sample_b < 0:
+        raise ValueError("Feature values cannot be negative.")
+
+    if sample_a == 0 and sample_b == 0:
+        return 1.0
+
+    difference = abs(sample_a - sample_b)
+    return 1.0 - difference / (sample_a + sample_b)
 
 def compare_feature_values(
     value_a: int | float,
@@ -31,8 +47,24 @@ def compare_feature_values(
         "sample_a": sample_a,
         "sample_b": sample_b,
         "absolute_difference": abs(sample_a - sample_b),
-    }
+        "similarity": calculate_feature_similarity(sample_a, sample_b),
+}   
+def calculate_feature_similarity(
+    value_a: int | float,
+    value_b: int | float,
+) -> float:
+    """Return a scale-independent similarity from 0.0 to 1.0."""
+    sample_a = float(value_a)
+    sample_b = float(value_b)
 
+    if sample_a < 0 or sample_b < 0:
+        raise ValueError("Feature values cannot be negative.")
+
+    if sample_a == 0 and sample_b == 0:
+        return 1.0
+
+    difference = abs(sample_a - sample_b)
+    return 1.0 - difference / (sample_a + sample_b)
 
 def compare_profiles(
     profile_a: dict[str, int | float],
