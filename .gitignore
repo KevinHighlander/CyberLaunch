@@ -42,3 +42,7 @@ models/
 # Temporary files
 *.tmp
 *.swp
+# Python packaging
+*.egg-info/
+build/
+dist/

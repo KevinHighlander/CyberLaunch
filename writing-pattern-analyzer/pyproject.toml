@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "writing-pattern-analyzer"
+version = "0.1.0"
+description = "An educational tool for comparing stylometric writing features."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "matplotlib",
+]
+
+[project.scripts]
+writing-pattern-analyzer = "writing_pattern_analyzer.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
