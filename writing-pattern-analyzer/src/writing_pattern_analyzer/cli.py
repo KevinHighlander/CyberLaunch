@@ -3,6 +3,7 @@ from pathlib import Path
 
 from .comparison import compare_files
 from .visualization import create_similarity_chart
+from .reporting import format_comparison_report
 
 
 LIMITATION_NOTICE = (
@@ -71,6 +72,14 @@ def main(argv: list[str] | None = None) -> int:
     except (OSError, ValueError) as error:
         parser.error(f"Unable to analyze samples: {error}")
 
+    report = format_comparison_report(
+        comparison,
+        arguments.name_a,
+        arguments.name_b,
+    )
+
+    print(report)
+    print()
     print(f"Chart saved to: {chart_path}")
     print(LIMITATION_NOTICE)
 

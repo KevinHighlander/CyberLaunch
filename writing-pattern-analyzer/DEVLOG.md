@@ -78,3 +78,34 @@ Unique-word count and sentence count are also raw counts because they answer “
 
 We test invalid and missing giles to ensure the application responds predictablywhen a user selects an unsupported format, misspells a filename, or moves a file. These tests do not analyze writing habits; they verify input validation and error handling. A clear error helps the user correct the problem and prevents the analyzer from processing or missing unreadable data.
 
+### What did the first comparison reveal, and which result surprised me?
+
+The first comparison produced nearly identical vocabulary-richness scores, so
+that measurement did not meaningfully distinguish these two samples.
+
+Both samples contained eight detected sentences. Words in the formal sample
+averaged 5.89 letters, compared with 4.70 letters in the conversational sample.
+
+The conversational sample had a slightly longer average sentence length of
+14.63 words, compared with 14.0 words in the formal sample. This contradicted
+our original prediction that conversational sentences would be shorter.
+
+The takeaway is that we can form hypotheses, but we must allow measurements to
+challenge them. We should not adjust our interpretation merely to match what we
+expected. These two deliberately styled samples are also too limited to support
+universal conclusions about formal and conversational writing.
+
+### Why did we stop displaying jointly absent features as 100% similar?
+
+Both samples having zero occurrences is a shared absence, but presenting it as
+a full similarity bar could exaggerate the evidence of matching writing styles.
+The revised chart marks these features as not scored, making the visualization
+more transparent.
+
+### What did I learn about quotation marks?
+
+Quotation marks define the boundaries of strings. A single missing quotation
+mark can cause Python or the shell to interpret later instructions as part of
+an unfinished string. Unexpected continuation prompts such as `...` or
+`dquote>` are signals to cancel the instruction and inspect matching quotation
+marks before trying again.
