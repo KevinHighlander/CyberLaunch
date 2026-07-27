@@ -5,6 +5,14 @@ automation, digital forensics, and software development.
 
 ## Projects
 
+### [CyberLaunch OS](cyberlaunch-os/)
+
+A Kotlin and Jetpack Compose Android learning environment with a branded
+command center, safe offline cybersecurity modules, and a staged roadmap toward
+a custom Android launcher and AOSP-based system.
+
+Status: Version 0.1.0 foundation in development
+
 ### Atlantic Hurricane Tracker
 
 Python automation for monitoring Atlantic tropical-weather systems,
@@ -55,3 +63,5 @@ Status: Ongoing
 - Python packaging
 - Data visualization
 - Stylometric analysis
+- Kotlin and Jetpack Compose
+- Android application development

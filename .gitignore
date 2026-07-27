@@ -23,6 +23,7 @@ secrets.json
 # IDE and editor files
 .vscode/
 .idea/
+*.iml
 
 # Logs and generated output
 *.log
@@ -46,3 +47,12 @@ models/
 *.egg-info/
 build/
 dist/
+
+# Android and Gradle
+.gradle/
+**/build/
+local.properties
+*.apk
+*.aab
+*.jks
+*.keystore
