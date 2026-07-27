@@ -27,6 +27,14 @@ Automation project for organizing newly posted class materials.
 
 Status: In Development
 
+### [iPad Notes Converter](ipad-notes-converter/)
+
+A local Python organizer that converts exported iPad notes to PDF and routes
+them into configurable subject folders. It supports safe previews, duplicate
+handling, local logging, and an Apple Shortcuts export workflow.
+
+Status: In development — functional prototype
+
 ### Cybersecurity Labs
 
 Documented home-lab exercises covering networking, Docker,
