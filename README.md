@@ -13,12 +13,13 @@ a custom Android launcher and AOSP-based system.
 
 Status: Version 0.1.0 foundation in development
 
-### Atlantic Hurricane Tracker
+### [Atlantic Hurricane Tracker](hurricane-tracker/)
 
 Python automation for monitoring Atlantic tropical-weather systems,
-including disturbances forming off the coast of Africa.
+including disturbances forming off the coast of Africa, active cyclones,
+meaningful daily changes, and lower U.S. East Coast alerts.
 
-Status: In development
+Status: Version 2.0 complete
 
 ### [Writing Pattern Analyzer](writing-pattern-analyzer/)
 

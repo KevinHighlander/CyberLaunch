@@ -1,131 +1,219 @@
-# Atlantic Hurricane Tracker
+# Atlantic Hurricane Tracker V2
 
-A beginner-friendly Python command-line project that creates a plain-text
-Atlantic tropical-weather briefing from official National Hurricane Center
-(NHC) RSS feeds.
+A Pyto/iPhone-friendly Python script that turns official NOAA weather feeds
+into a daily Atlantic tropical-weather briefing. It focuses on disturbances
+coming off Africa, active Atlantic cyclones, and alerts affecting Florida,
+Georgia, South Carolina, North Carolina, and Virginia.
 
-## What it does
+This is a briefing aid, not an emergency-warning service or a landfall
+forecast. Always follow official NHC/NWS products and local public-safety
+instructions.
 
-- Reads the NHC Atlantic tropical-cyclone feed.
-- Identifies cyclone-specific advisory products, when present.
-- Includes entries from the NHC Graphical Tropical Weather Outlook feed.
-- Saves a readable report in `output/atlantic_hurricane_report.txt`.
-- Offers a fictional offline sample so the project can be tested without
-  internet access or an active storm.
-- Requires no account, API key, or secret.
+## Version 2 highlights
 
-This is a portfolio and educational project—not an emergency-alert service.
-Always use current NHC products and local emergency-management instructions
-for safety decisions.
+- Uses the NHC Atlantic Tropical Weather Outlook and Tropical Weather
+  Discussion RSS feeds.
+- Uses NHC's machine-readable `CurrentStorms.json` feed and keeps only Atlantic
+  systems.
+- Checks the NWS active-alert API for FL, GA, SC, NC, and VA.
+- Summarizes the situation in a 30-second quick look.
+- Organizes disturbances, tropical waves, and storms into practical Atlantic
+  zones.
+- Compares each run with the prior snapshot and explains meaningful changes.
+- Saves a current report, daily archive, and 30-snapshot JSON history.
+- Prints `ALERT_REQUIRED=true` or `false` for Apple Shortcuts.
+- Redirects away from Pyto's read-only Inbox to a writable Documents folder.
+- Uses only Python's standard library—no package installation or API keys.
+- Marks the report `GRAY — DATA UNAVAILABLE` instead of falsely reporting quiet
+  conditions when every core NHC feed fails.
 
 ## Official data sources
 
-The script uses public feeds published by NOAA's National Hurricane Center:
-
-- [Atlantic Basin Tropical Cyclones RSS](https://www.nhc.noaa.gov/index-at.xml)
-- [Atlantic Tropical Weather Outlook RSS](https://www.nhc.noaa.gov/xml/TWOAT.xml)
+- [NHC Atlantic Tropical Weather Outlook RSS](https://www.nhc.noaa.gov/xml/TWOAT.xml)
+- [NHC Atlantic Tropical Weather Discussion RSS](https://www.nhc.noaa.gov/xml/TWDAT.xml)
+- [NHC Current Storms JSON](https://www.nhc.noaa.gov/CurrentStorms.json)
 - [NHC RSS documentation](https://www.nhc.noaa.gov/aboutrss.shtml)
-
-NHC controls the feeds and may change their availability or structure. The
-tracker reports connection and parsing errors clearly instead of silently
-showing old data. It does not cache a live report.
+- [NHC current-product documentation](https://www.nhc.noaa.gov/productexamples/)
+- [NWS alerts API documentation](https://www.weather.gov/documentation/services-web-alerts)
 
 ## Requirements
 
 - Python 3.10 or newer
-- Internet access for live mode
+- Internet access for live reports
 
-There are no third-party Python packages to install. `requirements.txt`
-documents that intentionally.
+There are no third-party dependencies. Leave `requirements.txt` as it is.
 
-## Run it
+## Run on a computer
 
-Open Terminal and enter:
+From the repository:
 
 ```bash
-cd ~/CyberLaunch/hurricane-tracker
-python3 hurricane-report.py --print
+cd hurricane-tracker
+python3 hurricane-report.py --output-dir ./output
 ```
 
-The report appears in Terminal and is also saved to:
+To print the complete report:
+
+```bash
+python3 hurricane-report.py --output-dir ./output --print
+```
+
+The script writes:
 
 ```text
-output/atlantic_hurricane_report.txt
+output/
+├── latest_report.txt
+├── report_YYYY-MM-DD.txt
+└── hurricane_state.json
 ```
 
-To choose a different output file:
+The first run creates the comparison baseline. Later runs explain what changed.
+The generated `output/` directory is ignored by Git.
+
+## Test without internet
+
+The built-in demonstration is fictional and makes no network requests:
 
 ```bash
-python3 hurricane-report.py --print --output ~/Desktop/hurricane-report.txt
+python3 hurricane-report.py --sample --output-dir ./output/demo --print
 ```
 
-## Test safely with offline sample data
+It exercises a disturbance, an African tropical wave, an Atlantic tropical
+storm, a coastal alert, report generation, and the Shortcuts flag. It is
+clearly labeled as demonstration data.
 
-Sample mode makes no internet request and uses clearly labeled fictional data:
+Run the automated tests:
 
 ```bash
-python3 hurricane-report.py --sample --print
+python3 -m unittest discover -s tests -v
 ```
 
-Compare the result with `sample-output.txt`. A successful run ends with a
-`Saved report:` message. Then check the process result:
-
-```bash
-echo $?
-```
-
-`0` means the program completed successfully. An unavailable feed, invalid
-feed, or unwritable output location produces a helpful message and returns
-`1`.
-
-For a syntax check:
+For a quick syntax check:
 
 ```bash
 python3 -m py_compile hurricane-report.py
 ```
 
-## Command options
+## Install or update on iPhone/Pyto
+
+### First-time install
+
+1. Install **Pyto** from the App Store.
+2. Download `hurricane-report.py` from this repository.
+3. In the iPhone Files app, create:
+   `On My iPhone > Pyto > Hurricane Report Script`
+4. Move `hurricane-report.py` into that folder.
+5. Open that saved copy in Pyto and tap **Run**.
+
+Do not run the imported copy from Pyto's `Inbox`; iOS treats that location as
+read-only. Even if the script is accidentally opened there, Version 2 tries
+writable fallback folders instead of saving reports beside the script.
+
+The normal report location is:
 
 ```text
---print              show the report in Terminal
---sample             use fictional bundled data and stay offline
--o, --output PATH    choose the saved report path
---timeout SECONDS    change the live-request timeout
--h, --help           show built-in help
+On My iPhone/Pyto/Hurricane Reports/
 ```
+
+### Replace Version 1 with Version 2
+
+1. Download the new `hurricane-report.py`.
+2. Open **Files > On My iPhone > Pyto > Hurricane Report Script**.
+3. Press and hold the old `hurricane-report.py`, choose **Rename**, and call it
+   `hurricane-report-v1-backup.py`.
+4. Move the newly downloaded `hurricane-report.py` into the same folder.
+5. Open the new file in Pyto and tap **Run**.
+6. Confirm the output ends with both `Report saved:` and
+   `ALERT_REQUIRED=true` or `ALERT_REQUIRED=false`.
+7. Open `Hurricane Reports/latest_report.txt` and confirm its heading says
+   `ATLANTIC HURRICANE REPORT — VERSION 2`.
+8. After the new version works, you may keep or delete the backup.
+
+Renaming first makes the update recoverable and prevents iOS from creating an
+ambiguous filename such as `hurricane-report (1).py`.
+
+## Create the Apple Shortcut
+
+Pyto action names can vary slightly by version:
+
+1. Open **Shortcuts** and create **Atlantic Hurricane Report**.
+2. Add Pyto's **Run Script** action.
+3. Select the new `hurricane-report.py`.
+4. Leave arguments empty.
+5. Add an **If** action: if the Pyto result contains
+   `ALERT_REQUIRED=true`.
+6. In the Yes branch, add **Show Notification**:
+   `The Atlantic briefing has a meaningful change.`
+7. Optionally add **Quick Look** or **Open File** for `latest_report.txt`.
+
+To display the entire report as the script result, pass:
+
+```text
+--print
+```
+
+For a daily run, add a **Time of Day** automation, select **Run Immediately**,
+and run the shortcut. Test once with the phone unlocked before relying on
+background execution.
+
+## Notification rules
+
+`ALERT_REQUIRED=true` is printed when, for example:
+
+- A new Atlantic storm or relevant state alert appears.
+- A new disturbance is already at 40% or greater formation probability.
+- Formation probability reaches 40% or rises by at least 20 points.
+- An active cyclone strengthens or changes classification.
+- The overall status increases.
+- All three core NHC feeds become unavailable.
+
+Reports are saved even when the flag is false.
+
+## Updating the tracked file in Git
+
+After editing or replacing the script locally:
+
+```bash
+git status
+git diff -- hurricane-tracker/hurricane-report.py
+python3 -m unittest discover -s hurricane-tracker/tests -v
+git add hurricane-tracker/
+git commit -m "Upgrade Atlantic hurricane tracker to Version 2"
+git push origin main
+```
+
+Review `git diff` before committing. Do not add the generated `output/` folder
+or personal `hurricane_state.json`; the repository's `.gitignore` excludes
+`hurricane-tracker/output/`.
 
 ## Project files
 
 ```text
 hurricane-tracker/
-├── hurricane-report.py   # main program
-├── README.md             # setup, usage, and source documentation
-├── requirements.txt      # confirms there are no external dependencies
-└── sample-output.txt     # expected shape of an offline sample report
+├── hurricane-report.py
+├── README.md
+├── requirements.txt
+├── sample-output.txt
+└── tests/
+    └── test_hurricane_report.py
 ```
 
-The generated `output/` folder is excluded from Git because reports change
-each time the program runs.
+## Optional controls
 
-## Privacy and secrets
+```text
+--print, --print-report    print the complete report
+--sample                   use fictional offline data
+--output-dir FOLDER        choose the report folder
+--fixtures FOLDER          use saved feed fixtures for development
+-h, --help                 show command help
+```
 
-This project needs no credentials. Do not add passwords, tokens, `.env` files,
-or private location data. The main CyberLaunch `.gitignore` excludes common
-secret and generated files.
+Advanced users can also set the `HURRICANE_REPORT_DIR` environment variable to
+choose a report directory.
 
-## Limitations
+## Privacy and limitations
 
-- An RSS entry is a pointer to an official product, not a complete risk
-  assessment.
-- A missing cyclone-specific entry does not guarantee that tropical weather
-  poses no threat.
-- Feed wording and structure are controlled by NHC.
-- The script does not send notifications or run automatically.
-
-## Possible future improvements
-
-- Optional desktop notifications
-- Scheduled daily reports
-- Structured JSON output
-- Tests with saved, sanitized RSS fixtures
-- A map that links to official NHC forecast graphics
+The script needs no credentials and sends no personal data. Feed structures and
+wording can change, individual sources can fail, and automated text parsing can
+miss nuance. A missing system is not a safety guarantee. Use the official links
+inside each report when making decisions.

@@ -1,27 +1,64 @@
-ATLANTIC HURRICANE TRACKER
-============================
-Generated: 2026-07-24 12:00 UTC (sample data)
-Mode: OFFLINE DEMONSTRATION
+ATLANTIC HURRICANE REPORT — VERSION 2
+Generated: Monday, July 27, 2026 at 08:44 AM EDT
+Mode: OFFLINE DEMONSTRATION — NOT WEATHER INFORMATION
 
-ACTIVE-CYCLONE ADVISORY PRODUCTS
---------------------------------
-- Hurricane Example Public Advisory Number 8
-  Issued: Fri, 24 Jul 2026 12:00:00 GMT
-  Example is moving northwest. This is demonstration data only.
-  More: https://www.nhc.noaa.gov/
+30-SECOND QUICK LOOK
+Overall status: RED — ELEVATED
+Why: 1 NHC development area(s); formation probability reaches 40%; 1 active Atlantic cyclone(s); 1 relevant lower East Coast alert(s)
+Tropical waves discussed by NHC: 1
+Official development areas: 1
+Active Atlantic cyclones: 1
+Relevant FL/GA/SC/NC/VA alerts: 1
+Immediate lower East Coast signal: Review active storms/alerts below
+Shortcut notification requested: YES
 
-ATLANTIC FORMATION OUTLOOK
----------------------------
-- Atlantic 7-Day Graphical Tropical Weather Outlook
-  Issued: Fri, 24 Jul 2026 12:00:00 GMT
-  Demonstration outlook: formation chance is low (20 percent).
-  More: https://www.nhc.noaa.gov/gtwo.php
+CHANGES SINCE PRIOR RUN
+• First run: baseline saved for future comparisons.
 
-DATA NOTES
-----------
-- Atlantic advisory feed: https://www.nhc.noaa.gov/index-at.xml
-- Atlantic outlook feed: https://www.nhc.noaa.gov/xml/TWOAT.xml
-- Official NHC website: https://www.nhc.noaa.gov/
-- This report uses fictional sample entries and is not weather information.
-- This educational tool is not an emergency-alert service.
-- For safety decisions, use current NHC products and local emergency instructions.
+ATLANTIC ZONES
+
+AFRICA AND CABO VERDE REGION
+• DISTURBANCE — Eastern Tropical Atlantic (48-hour: 10%; 7-day: 40%)
+  A broad area of low pressure associated with a tropical wave is moving west away from the coast of Africa. Formation chance through 48 hours...low... 10 percent. Formation chance through 7 days...medium...40 percent.
+
+EASTERN TROPICAL ATLANTIC
+• TROPICAL WAVE — Tropical wave near 25°W — moving westward at 10 to 15 kt
+  An eastern Atlantic tropical wave has its axis along 25W, moving westward at 10 to 15 kt. Scattered showers are present. This is demonstration data only.
+
+CENTRAL ATLANTIC
+• ACTIVE: Tropical Storm Example, maximum winds 50 mph
+  Position 20.0N 55.0W, moving 280° at 12 mph.
+  Official advisory: https://www.nhc.noaa.gov/
+
+CARIBBEAN AND LESSER ANTILLES
+• No tracked systems.
+
+BAHAMAS AND WESTERN ATLANTIC
+• No tracked systems.
+
+FLORIDA AND LOWER EAST COAST
+• No tracked systems.
+
+UNSPECIFIED ATLANTIC AREA
+• No tracked systems.
+
+LOWER U.S. EAST COAST ALERTS (FL, GA, SC, NC, VA)
+• FL — Tropical Storm Watch (Severe)
+  Demonstration Tropical Storm Watch for part of coastal Florida
+  Area: Sample coastal Florida area
+  Official alert: https://api.weather.gov/alerts/sample
+
+FILES
+Saved in: output/demo
+
+OFFICIAL SOURCES
+NHC Atlantic outlook: https://www.nhc.noaa.gov/xml/TWOAT.xml
+NHC Atlantic discussion: https://www.nhc.noaa.gov/xml/TWDAT.xml
+NHC active cyclones: https://www.nhc.noaa.gov/CurrentStorms.json
+NWS active alerts: https://api.weather.gov/alerts/active
+
+SAFETY NOTE
+This automated summary can miss nuance or fail when a source changes. It does not predict landfall.
+Use the linked NHC/NWS products and follow instructions from public safety officials.
+
+ALERT_REQUIRED=true
