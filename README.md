@@ -12,12 +12,14 @@ including disturbances forming off the coast of Africa.
 
 Status: In development
 
-### AI Submission Detector
+### [Writing Pattern Analyzer](writing-pattern-analyzer/)
 
-Machine-learning experiment for comparing human-written and
-AI-generated text.
+An educational Python application that extracts stylometric features, compares
+writing samples, prints a readable report, and visualizes per-feature
+similarities. It cannot determine whether text was AI-generated or establish
+authorship.
 
-Status: In development
+Status: Version 0.1.0 complete
 
 ### Lecture Downloader
 
@@ -41,3 +43,7 @@ Status: Ongoing
 - Digital forensics
 - Automation
 - Technical documentation
+- Automated testing
+- Python packaging
+- Data visualization
+- Stylometric analysis
