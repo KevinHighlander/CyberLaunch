@@ -1,0 +1,20 @@
+# Android Studio and IntelliJ
+.idea/
+*.iml
+
+# Gradle and generated output
+.gradle/
+build/
+**/build/
+
+# Local Android SDK path
+local.properties
+
+# Signing material and generated packages
+*.jks
+*.keystore
+*.apk
+*.aab
+
+# macOS
+.DS_Store
