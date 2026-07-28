@@ -1,24 +1,19 @@
 {
-  "download_dir": "~/Downloads/CyberLaunch Lectures",
-  "state_dir": "~/.local/share/lecture-downloader",
+  "download_dir": "downloads",
+  "state_file": ".lecture-downloader-state.json",
   "timeout_seconds": 30,
   "max_file_size_mb": 100,
-  "extensions": [".pdf", ".ppt", ".pptx", ".key", ".doc", ".docx"],
+  "extensions": [".pdf", ".ppt", ".pptx", ".doc", ".docx", ".txt"],
+  "allowed_hosts": ["files.example.edu"],
   "courses": [
     {
       "name": "COURSE 101",
       "folder": "COURSE 101",
       "sources": [
-        "https://campuswire.com/c/COURSE-ID/modules/files"
-      ],
-      "allowed_hosts": [
-        "files.campuswire.com"
-      ],
-      "tab_names": ["All Files"],
-      "auth": {
-        "headers_from_env": {},
-        "cookies_from_env": {}
-      }
+        {"type": "manifest", "path": "authorized-export.json"},
+        {"type": "html", "path": "authorized-export.html"},
+        {"type": "url", "url": "https://files.example.edu/week-01.pdf"}
+      ]
     }
   ]
 }

@@ -1,0 +1,6 @@
+{
+  "files": [
+    {"url": "fixtures/week-01.txt", "filename": "Week 01 Notes.txt"},
+    {"url": "fixtures/week-01-copy.txt", "filename": "Week 01 Notes Copy.txt"}
+  ]
+}

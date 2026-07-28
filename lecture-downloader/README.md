@@ -1,39 +1,41 @@
 # Lecture Downloader
 
-A safe Python utility for downloading newly posted lecture and discussion files
-from course pages you are authorized to access or from direct file links.
+A safe, platform-neutral Python utility for collecting course files you are
+already authorized to download. It supports user-supplied direct HTTPS URLs,
+static HTML exports, and JSON manifests, with a complete offline sample.
 
-It does **not** bypass logins, access controls, CAPTCHAs, paywalls, or other site
-protections. Use it only where your school and course platform permit automated
-downloads.
+This project does **not** log in, automate a browser, scrape a named learning
+platform, bypass authentication or DRM, defeat access controls, or ignore site
+terms. If a platform requires authentication, use its official export/download
+feature or an authorized API to produce a manifest or static HTML export.
 
-## Features
+## Highlights
 
-- Finds PDF, PowerPoint, Keynote, and Word links on permitted course pages
-- Uses a private browser profile for signed-in Campuswire Files pages
-- Accepts direct file URLs
-- Saves files in a separate folder for each course
-- Records previously seen URLs
-- Detects duplicate file contents with SHA-256 hashes
-- Offers baseline and dry-run modes
-- Keeps configuration, download history, and logs out of Git
-- Can read permitted session headers or cookies from environment variables
-- Blocks off-site links discovered on pages unless their hosts are explicitly allowed
-- Enforces configurable timeouts and file-size limits
+- HTTPS-only remote downloads with an explicit host allowlist
+- Local manifest and HTML-export support
+- Extension and maximum-size enforcement
+- SHA-256 duplicate detection and collision-safe filenames
+- Persistent history so completed URLs are not downloaded twice
+- Dry-run and baseline modes
+- No credentials, cookies, or tokens in configuration
+- Automated tests requiring no network access
 
-## Project files
+## Project layout
 
 ```text
 lecture-downloader/
+├── lecture_downloader.py
 ├── lecture-downloader.py
 ├── config.example.json
 ├── requirements.txt
-└── README.md
+├── samples/
+│   ├── config.sample.json
+│   ├── manifest.json
+│   └── fixtures/
+└── tests/
 ```
 
-Your private `config.json`, downloads, logs, and history are ignored by Git.
-
-## Setup
+## Setup and sample
 
 Requires Python 3.10 or newer.
 
@@ -42,194 +44,82 @@ cd ~/CyberLaunch/lecture-downloader
 python3 -m venv .venv
 source .venv/bin/activate
 python3 -m pip install -r requirements.txt
-python3 -m playwright install chromium
+python3 lecture-downloader.py --sample
+```
+
+The sample copies one local fixture to `samples/output/Sample Course/` and
+reports the identical second fixture as a duplicate. Both output and sample
+state are ignored by Git. Remove those generated folders/files to replay it.
+
+## Configure an authorized source
+
+```bash
 cp config.example.json config.json
 ```
 
-Edit `config.json` and replace the example URLs with course pages or direct
-links you are allowed to download.
+Edit the private, Git-ignored `config.json`. Supported source types:
 
-For Campuswire, use each class's Files-page URL, not an individual PDF:
+- `manifest`: local JSON export containing `{"files": [...]}`. Entries can be
+  URL strings or `{"url": "...", "filename": "..."}` objects.
+- `html`: local static HTML export. Supported file links are discovered.
+- `html_url`: public/authorized HTTPS HTML page with no login automation.
+- `url`: an authorized direct HTTPS file URL.
 
-```text
-https://campuswire.com/c/COURSE-ID/modules/files
-```
+Relative local paths are resolved from the config file's directory. Every
+remote hostname—including a redirect destination—must appear in
+`allowed_hosts`. HTTP, embedded URL credentials, and unlisted hosts are rejected.
 
-## Configuration
+Do not place passwords, session cookies, API tokens, or signed private URLs in a
+committed file. For authenticated systems, prefer an official export or API
+client and keep that separate from this downloader.
 
-Each course has:
-
-- `name`: display name used by `--course`
-- `folder`: download subfolder
-- `sources`: authorized HTML pages and/or direct file URLs
-- `allowed_hosts`: optional hosts for legitimate file/CDN links discovered on
-  the course page
-- `tab_names`: optional Modules tabs to open, such as `["All Files"]`
-- `auth`: optional environment-variable mappings
-
-The default download location is:
-
-```text
-~/Downloads/CyberLaunch Lectures/<course folder>/
-```
-
-Private history and logs are stored under:
-
-```text
-~/.local/share/lecture-downloader/
-```
-
-The saved Campuswire browser session is stored privately under:
-
-```text
-~/.local/share/lecture-downloader/browser-profile/
-```
-
-It remains on your Mac and is not part of the Git repository.
-
-### Authentication, when permitted
-
-Do not put passwords, tokens, or cookie values in `config.json`. If your course
-platform explicitly permits a user-provided session token, map an environment
-variable to the required header or cookie:
-
-```json
-"auth": {
-  "headers_from_env": {
-    "Authorization": "COURSE_AUTHORIZATION"
-  },
-  "cookies_from_env": {
-    "session": "COURSE_SESSION_COOKIE"
-  }
-}
-```
-
-Then set the value only in your current Terminal session:
+## Run
 
 ```bash
-export COURSE_AUTHORIZATION='Bearer value-provided-by-your-platform'
-export COURSE_SESSION_COOKIE='value-provided-by-your-platform'
-```
+# Preview without writing downloads or state
+python3 lecture-downloader.py --dry-run
 
-Never commit these values, paste them into an issue, or share them.
-
-### Campuswire sign-in
-
-After adding all Campuswire Files-page URLs to `config.json`, run:
-
-```bash
-python3 lecture-downloader.py --login
-```
-
-A private Chromium window opens. Sign in to Campuswire normally, wait until the
-Files page appears, return to Terminal, and press Return. The program saves the
-resulting browser session locally. It does not read or store your password in
-the project.
-
-Campuswire tabs with the standard `tab` role are scanned automatically. If a
-course keeps files behind a custom Modules tab, add its visible name:
-
-```json
-"tab_names": ["All Files"]
-```
-
-Campuswire may store instructor-provided external documents in its official
-Amazon S3 bucket. Add that exact host only for a course that uses it:
-
-```json
-"allowed_hosts": [
-  "files.campuswire.com",
-  "campuspro-data.s3.us-east-1.amazonaws.com"
-]
-```
-
-## First run
-
-To mark everything currently posted as already seen without downloading it:
-
-```bash
+# Mark currently listed files as seen
 python3 lecture-downloader.py --baseline
-```
 
-To preview new links without downloading:
-
-```bash
-python3 lecture-downloader.py --dry-run --visible
-```
-
-To download new files:
-
-```bash
+# Download new files
 python3 lecture-downloader.py
+
+# Use another config
+python3 lecture-downloader.py --config /path/to/private-config.json
 ```
 
-To process one configured course:
+Failures return a nonzero exit status. A failed URL is not marked complete, so
+the next run can retry it.
+
+## Test
 
 ```bash
-python3 lecture-downloader.py --course "ENGL 200"
+python3 -m unittest discover -s tests -v
 ```
 
-For detailed logging in Terminal:
+All tests are offline and use temporary directories.
 
-```bash
-python3 lecture-downloader.py --verbose
-```
-
-The `--visible` option shows the Campuswire browser during a scan and is useful
-for troubleshooting. Normal scans reuse the same session in the background.
-
-If Campuswire reports zero supported links even though files are visible, run:
-
-```bash
-python3 lecture-downloader.py --dry-run --visible --diagnose
-```
-
-This saves a private HTML snapshot and screenshot under:
+## Example output
 
 ```text
-~/.local/share/lecture-downloader/debug/
+DOWNLOADED [Sample Course] .../samples/output/Sample Course/Week 01 Notes.txt
+DUPLICATE [Sample Course] fixtures/week-01-copy.txt
 ```
 
-These diagnostics can contain course names and filenames. Keep them private;
-do not upload them to GitHub or share them publicly.
+## Git guidance
 
-## Duplicate detection
-
-The program first skips URLs already recorded in its private state. When a new
-URL returns a file whose SHA-256 hash matches an earlier download, the temporary
-file is deleted and recorded as a duplicate. Different files with the same name
-receive numbered filenames rather than overwriting existing work.
-
-If a download fails, its URL is not marked complete, so a later run can retry it.
-
-## Limitations
-
-- A Campuswire interface change may require updating the link discovery logic.
-- Some learning-management systems prohibit scraping or require an official API.
-- Signed download URLs may expire.
-- A successful request does not imply that automation is permitted; follow your
-  institution's rules.
-
-For unsupported authenticated pages, use the platform's official download
-feature or add authorized direct links to `sources`.
-
-## GitHub workflow
-
-Review changes first:
+The project `.gitignore` excludes virtual environments, private config,
+downloads, state, logs, and sample output. Before committing:
 
 ```bash
 cd ~/CyberLaunch
-git status
+git status --short
 git diff -- lecture-downloader
-```
-
-Commit only this project:
-
-```bash
+git check-ignore -v lecture-downloader/config.json
 git add lecture-downloader
 git commit -m "Build safe Lecture Downloader"
-git push
 ```
 
-Before committing, confirm that `config.json`, secrets, downloaded class
-materials, state files, and logs are not listed by `git status`.
+Use the path-scoped `git add` shown above so unrelated repository work—such as
+`hurricane-tracker` changes—is not included.

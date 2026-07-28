@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.py[cod]
+config.json
+.env
+.env.*
+downloads/
+.lecture-downloader-state.json
+samples/output/
+samples/state.json
+*.log

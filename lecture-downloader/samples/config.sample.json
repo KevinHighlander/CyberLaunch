@@ -1,0 +1,14 @@
+{
+  "download_dir": "output",
+  "state_file": "state.json",
+  "max_file_size_mb": 1,
+  "extensions": [".txt", ".pdf"],
+  "allowed_hosts": [],
+  "courses": [
+    {
+      "name": "Sample Course",
+      "folder": "Sample Course",
+      "sources": [{"type": "manifest", "path": "manifest.json"}]
+    }
+  ]
+}
