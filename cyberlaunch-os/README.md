@@ -1,9 +1,10 @@
 # CyberLaunch OS
 
 CyberLaunch OS is a mobile-first cybersecurity learning environment built with
-Kotlin and Jetpack Compose. Version `0.1.0` is an Android app that establishes
-the visual language, navigation, and safe training modules that can later grow
-into a custom launcher and, eventually, an AOSP-based system.
+Kotlin and Jetpack Compose. Version `0.2.0` establishes the visual language,
+navigation, safe training modules, and the first persistent training progress
+that can later grow into a custom launcher and, eventually, an AOSP-based
+system.
 
 > **Training boundary:** The starter modules are offline and defensive. They do
 > not scan networks, collect credentials, or interact with external targets.
@@ -13,9 +14,10 @@ into a custom launcher and, eventually, an AOSP-based system.
 - Branded Command Center home screen
 - Compose Navigation between training modules
 - Password Lab with local, in-memory strength feedback
-- Interactive incident-response practice checklist
+- Persistent incident-response practice checklist with a reset action
+- Command Center incident-response progress
 - Defensive network-basics reference cards
-- Unit tests for the password assessment rules
+- Unit tests for password assessment and saved-progress conversion rules
 - Adaptive Android launcher icon and dark cyber-themed design system
 
 ## Project map
@@ -23,7 +25,10 @@ into a custom launcher and, eventually, an AOSP-based system.
 ```text
 app/src/main/java/com/cyberlaunch/os/
 ├── MainActivity.kt                 # Android entry point
+├── data/
+│   └── ChecklistRepository.kt      # DataStore-backed training progress
 ├── domain/
+│   ├── IncidentResponseChecklist.kt # Checklist content and progress rules
 │   └── PasswordStrength.kt         # Testable password-training rules
 ├── navigation/
 │   └── Destination.kt              # App routes and module metadata
@@ -68,7 +73,7 @@ Start by changing one small thing and running the emulator after each edit:
 
 1. Edit the Command Center subtitle in `HomeScreen.kt`.
 2. Add a defensive concept to the `concepts` list in `NetworkBasicsScreen.kt`.
-3. Add a response step to `responseSteps` in `IncidentResponseScreen.kt`.
+3. Add a response step to `IncidentResponseChecklist.steps`.
 4. Add a matching unit test when you change password scoring rules.
 
 This mirrors the development loop we will use throughout the project:
@@ -76,8 +81,9 @@ This mirrors the development loop we will use throughout the project:
 
 ## Roadmap
 
-- **v0.1 — Foundation:** branded app shell and offline learning modules
-- **v0.2 — Persistence:** saved notes, checklist progress, and preferences
+- **v0.1 — Foundation (complete):** branded app shell and offline learning modules
+- **v0.2 — Persistence (current):** saved checklist progress and reset controls
+- **v0.2.x — Personalization:** saved notes and preferences
 - **v0.3 — Training console:** simulated commands with guided explanations
 - **v0.4 — Dashboard:** local device posture and permission education
 - **v1.0 — Launcher:** opt-in Android home-screen experience

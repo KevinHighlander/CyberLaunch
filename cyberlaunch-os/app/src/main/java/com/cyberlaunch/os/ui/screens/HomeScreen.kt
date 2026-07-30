@@ -17,6 +17,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.cyberlaunch.os.navigation.Destination
 import com.cyberlaunch.os.ui.components.ModuleCard
@@ -28,7 +30,11 @@ private val modules = listOf(
 )
 
 @Composable
-fun HomeScreen(onOpenModule: (Destination) -> Unit) {
+fun HomeScreen(
+    checklistCompleted: Int,
+    checklistTotal: Int,
+    onOpenModule: (Destination) -> Unit,
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -53,7 +59,10 @@ fun HomeScreen(onOpenModule: (Destination) -> Unit) {
             )
 
             Spacer(Modifier.height(24.dp))
-            StatusPanel()
+            StatusPanel(
+                checklistCompleted = checklistCompleted,
+                checklistTotal = checklistTotal,
+            )
             Spacer(Modifier.height(28.dp))
 
             Text("TRAINING MODULES", style = MaterialTheme.typography.labelLarge)
@@ -75,7 +84,10 @@ fun HomeScreen(onOpenModule: (Destination) -> Unit) {
 }
 
 @Composable
-private fun StatusPanel() {
+private fun StatusPanel(
+    checklistCompleted: Int,
+    checklistTotal: Int,
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -93,15 +105,27 @@ private fun StatusPanel() {
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             StatusValue("MODE", "TRAINING")
-            StatusValue("MODULES", modules.size.toString())
+            StatusValue(
+                label = "IR PROGRESS",
+                value = "$checklistCompleted/$checklistTotal",
+                description = "Incident response: $checklistCompleted of $checklistTotal steps completed",
+            )
             StatusValue("NETWORK", "OFFLINE")
         }
     }
 }
 
 @Composable
-private fun StatusValue(label: String, value: String) {
-    Column {
+private fun StatusValue(
+    label: String,
+    value: String,
+    description: String? = null,
+) {
+    Column(
+        modifier = Modifier.semantics(mergeDescendants = true) {
+            description?.let { contentDescription = it }
+        },
+    ) {
         Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Text(value, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
     }

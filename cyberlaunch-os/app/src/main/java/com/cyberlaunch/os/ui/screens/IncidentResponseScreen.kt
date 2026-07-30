@@ -7,31 +7,31 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import com.cyberlaunch.os.domain.IncidentResponseChecklist
 import com.cyberlaunch.os.ui.components.ScreenHeader
 
-private val responseSteps = listOf(
-    "Pause and write down what you observed.",
-    "Disconnect the affected device if active harm is occurring.",
-    "Preserve evidence; avoid wiping or reinstalling immediately.",
-    "Notify the responsible owner or incident lead.",
-    "Change exposed credentials from a known-safe device.",
-    "Record actions and times for the incident timeline.",
-)
-
 @Composable
-fun IncidentResponseScreen(onBack: () -> Unit) {
-    val completed = remember { mutableStateListOf<Int>() }
-
+fun IncidentResponseScreen(
+    completedSteps: Set<Int>,
+    onStepChanged: (step: Int, isCompleted: Boolean) -> Unit,
+    onReset: () -> Unit,
+    onBack: () -> Unit,
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -44,25 +44,43 @@ fun IncidentResponseScreen(onBack: () -> Unit) {
             "A practice checklist for staying methodical under pressure.",
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        responseSteps.forEachIndexed { index, step ->
+        IncidentResponseChecklist.steps.forEachIndexed { index, step ->
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .toggleable(
+                        value = index in completedSteps,
+                        role = Role.Checkbox,
+                        onValueChange = { checked -> onStepChanged(index, checked) },
+                    ),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Checkbox(
-                    checked = index in completed,
-                    onCheckedChange = { checked ->
-                        if (checked) completed.add(index) else completed.remove(index)
-                    },
+                    checked = index in completedSteps,
+                    onCheckedChange = null,
                 )
                 Text("${index + 1}. $step", modifier = Modifier.padding(start = 8.dp))
             }
         }
         Text(
-            "${completed.size}/${responseSteps.size} practice steps complete",
+            "${completedSteps.size}/${IncidentResponseChecklist.stepCount} practice steps complete",
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(top = 12.dp),
+            modifier = Modifier
+                .padding(top = 12.dp)
+                .semantics {
+                    liveRegion = LiveRegionMode.Polite
+                    contentDescription =
+                        "Incident response: ${completedSteps.size} of " +
+                        "${IncidentResponseChecklist.stepCount} steps completed"
+                },
         )
+        TextButton(
+            onClick = onReset,
+            enabled = completedSteps.isNotEmpty(),
+            modifier = Modifier.align(Alignment.End),
+        ) {
+            Text("Reset checklist")
+        }
     }
 }
