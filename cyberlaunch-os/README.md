@@ -39,7 +39,7 @@ app/src/main/java/com/cyberlaunch/os/
 1. Install the latest stable **Android Studio** from
    [developer.android.com/studio](https://developer.android.com/studio).
 2. During first-run setup, allow Android Studio to install the Android SDK.
-3. In **SDK Manager**, install the Android 37 SDK platform and an API 37 emulator
+3. In **SDK Manager**, install the Android 36 SDK platform and an API 36 emulator
    image. The project uses `minSdk 26`, so it can run on older test devices too.
 4. Open this repository folder in Android Studio.
 5. Let Gradle sync. The project requires JDK 17; Android Studio's bundled JDK is
