@@ -13,23 +13,26 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.cyberlaunch.os.data.DataStoreChecklistRepository
+import com.cyberlaunch.os.data.DataStoreTrainingRepository
+import com.cyberlaunch.os.data.TrainingState
 import com.cyberlaunch.os.domain.IncidentResponseChecklist
 import com.cyberlaunch.os.navigation.Destination
 import com.cyberlaunch.os.ui.components.CyberTopBar
+import com.cyberlaunch.os.ui.screens.FieldNotesScreen
 import com.cyberlaunch.os.ui.screens.HomeScreen
 import com.cyberlaunch.os.ui.screens.IncidentResponseScreen
 import com.cyberlaunch.os.ui.screens.NetworkBasicsScreen
 import com.cyberlaunch.os.ui.screens.PasswordLabScreen
+import com.cyberlaunch.os.ui.screens.SettingsScreen
 import kotlinx.coroutines.launch
 
 @Composable
 fun CyberLaunchApp() {
     val context = LocalContext.current.applicationContext
     val navController = rememberNavController()
-    val checklistRepository = remember(context) { DataStoreChecklistRepository(context) }
-    val completedSteps by checklistRepository.completedSteps.collectAsStateWithLifecycle(
-        initialValue = emptySet(),
+    val trainingRepository = remember(context) { DataStoreTrainingRepository(context) }
+    val trainingState by trainingRepository.state.collectAsStateWithLifecycle(
+        initialValue = TrainingState(),
     )
     val coroutineScope = rememberCoroutineScope()
 
@@ -50,8 +53,9 @@ fun CyberLaunchApp() {
         ) {
             composable(Destination.Home.route) {
                 HomeScreen(
-                    checklistCompleted = completedSteps.size,
+                    checklistCompleted = trainingState.completedSteps.size,
                     checklistTotal = IncidentResponseChecklist.stepCount,
+                    showSafetyReminder = trainingState.showSafetyReminder,
                     onOpenModule = { navController.navigate(it.route) },
                 )
             }
@@ -60,15 +64,15 @@ fun CyberLaunchApp() {
             }
             composable(Destination.IncidentResponse.route) {
                 IncidentResponseScreen(
-                    completedSteps = completedSteps,
+                    completedSteps = trainingState.completedSteps,
                     onStepChanged = { step, isCompleted ->
                         coroutineScope.launch {
-                            checklistRepository.setStepCompleted(step, isCompleted)
+                            trainingRepository.setStepCompleted(step, isCompleted)
                         }
                     },
                     onReset = {
                         coroutineScope.launch {
-                            checklistRepository.reset()
+                            trainingRepository.resetChecklist()
                         }
                     },
                     onBack = { navController.popBackStack() },
@@ -76,6 +80,33 @@ fun CyberLaunchApp() {
             }
             composable(Destination.NetworkBasics.route) {
                 NetworkBasicsScreen(onBack = { navController.popBackStack() })
+            }
+            composable(Destination.FieldNotes.route) {
+                FieldNotesScreen(
+                    savedNotes = trainingState.fieldNotes,
+                    onSave = { notes ->
+                        coroutineScope.launch {
+                            trainingRepository.saveFieldNotes(notes)
+                        }
+                    },
+                    onClear = {
+                        coroutineScope.launch {
+                            trainingRepository.clearFieldNotes()
+                        }
+                    },
+                    onBack = { navController.popBackStack() },
+                )
+            }
+            composable(Destination.Settings.route) {
+                SettingsScreen(
+                    showSafetyReminder = trainingState.showSafetyReminder,
+                    onShowSafetyReminderChanged = { show ->
+                        coroutineScope.launch {
+                            trainingRepository.setShowSafetyReminder(show)
+                        }
+                    },
+                    onBack = { navController.popBackStack() },
+                )
             }
         }
     }

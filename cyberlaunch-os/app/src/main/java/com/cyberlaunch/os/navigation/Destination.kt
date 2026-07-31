@@ -2,9 +2,11 @@ package com.cyberlaunch.os.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Rule
+import androidx.compose.material.icons.outlined.EditNote
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Hub
 import androidx.compose.material.icons.outlined.Password
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
 
 sealed class Destination(
@@ -20,4 +22,6 @@ sealed class Destination(
         Icons.AutoMirrored.Outlined.Rule,
     )
     data object NetworkBasics : Destination("network-basics", "Network Basics", Icons.Outlined.Hub)
+    data object FieldNotes : Destination("field-notes", "Field Notes", Icons.Outlined.EditNote)
+    data object Settings : Destination("settings", "Settings", Icons.Outlined.Settings)
 }

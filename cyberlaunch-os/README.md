@@ -1,7 +1,7 @@
 # CyberLaunch OS
 
 CyberLaunch OS is a mobile-first cybersecurity learning environment built with
-Kotlin and Jetpack Compose. Version `0.2.0` establishes the visual language,
+Kotlin and Jetpack Compose. Version `0.2.1` establishes the visual language,
 navigation, safe training modules, and the first persistent training progress
 that can later grow into a custom launcher and, eventually, an AOSP-based
 system.
@@ -16,6 +16,8 @@ system.
 - Password Lab with local, in-memory strength feedback
 - Persistent incident-response practice checklist with a reset action
 - Command Center incident-response progress
+- Local Field Notes with explicit save and confirmed clear actions
+- Persistent safety-reminder preference
 - Defensive network-basics reference cards
 - Unit tests for password assessment and saved-progress conversion rules
 - Adaptive Android launcher icon and dark cyber-themed design system
@@ -26,8 +28,9 @@ system.
 app/src/main/java/com/cyberlaunch/os/
 ├── MainActivity.kt                 # Android entry point
 ├── data/
-│   └── ChecklistRepository.kt      # DataStore-backed training progress
+│   └── TrainingRepository.kt       # DataStore-backed progress and preferences
 ├── domain/
+│   ├── FieldNotesPolicy.kt         # Note length and character safeguards
 │   ├── IncidentResponseChecklist.kt # Checklist content and progress rules
 │   └── PasswordStrength.kt         # Testable password-training rules
 ├── navigation/
@@ -74,7 +77,7 @@ Start by changing one small thing and running the emulator after each edit:
 1. Edit the Command Center subtitle in `HomeScreen.kt`.
 2. Add a defensive concept to the `concepts` list in `NetworkBasicsScreen.kt`.
 3. Add a response step to `IncidentResponseChecklist.steps`.
-4. Add a matching unit test when you change password scoring rules.
+4. Add a Field Notes policy test before changing its storage limits.
 
 This mirrors the development loop we will use throughout the project:
 **change → run → observe → test → commit**.
@@ -82,8 +85,8 @@ This mirrors the development loop we will use throughout the project:
 ## Roadmap
 
 - **v0.1 — Foundation (complete):** branded app shell and offline learning modules
-- **v0.2 — Persistence (current):** saved checklist progress and reset controls
-- **v0.2.x — Personalization:** saved notes and preferences
+- **v0.2 — Persistence (complete):** saved checklist progress and reset controls
+- **v0.2.1 — Personalization (complete):** local notes and saved safety preference
 - **v0.3 — Training console:** simulated commands with guided explanations
 - **v0.4 — Dashboard:** local device posture and permission education
 - **v1.0 — Launcher:** opt-in Android home-screen experience

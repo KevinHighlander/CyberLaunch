@@ -27,12 +27,15 @@ private val modules = listOf(
     Destination.PasswordLab to "Learn what makes a passphrase resilient.",
     Destination.IncidentResponse to "Practice the first steps of a calm response.",
     Destination.NetworkBasics to "Review ports, protocols, and defensive concepts.",
+    Destination.FieldNotes to "Save local observations and questions.",
+    Destination.Settings to "Personalize your training environment.",
 )
 
 @Composable
 fun HomeScreen(
     checklistCompleted: Int,
     checklistTotal: Int,
+    showSafetyReminder: Boolean,
     onOpenModule: (Destination) -> Unit,
 ) {
     Box(
@@ -63,6 +66,10 @@ fun HomeScreen(
                 checklistCompleted = checklistCompleted,
                 checklistTotal = checklistTotal,
             )
+            if (showSafetyReminder) {
+                Spacer(Modifier.height(16.dp))
+                SafetyReminder()
+            }
             Spacer(Modifier.height(28.dp))
 
             Text("TRAINING MODULES", style = MaterialTheme.typography.labelLarge)
@@ -80,6 +87,31 @@ fun HomeScreen(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun SafetyReminder() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                color = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.10f),
+                shape = MaterialTheme.shapes.large,
+            )
+            .padding(18.dp),
+    ) {
+        Text(
+            "AUTHORIZED LAB USE ONLY",
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.tertiary,
+        )
+        Text(
+            "Practice only on systems you own or have explicit permission to test.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(top = 6.dp),
+        )
     }
 }
 
