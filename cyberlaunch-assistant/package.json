@@ -10,7 +10,12 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:cyberlaunch-assistant.helloWorld"
+    "onCommand:cyberlaunch-assistant.inspectSelectedCode",
+    "onCommand:cyberlaunch-assistant.explainSelectedCode",
+    "onCommand:cyberlaunch-assistant.findBugs",
+    "onCommand:cyberlaunch-assistant.securityReview",
+    "onCommand:cyberlaunch-assistant.improveSelectedCode",
+    "onCommand:cyberlaunch-assistant.setApiKey"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -20,10 +25,50 @@
         "title": "CyberLaunch: Inspect Selected Code"
       },
       {
+        "command": "cyberlaunch-assistant.explainSelectedCode",
+        "title": "CyberLaunch: Explain Selected Code"
+      },
+      {
+        "command": "cyberlaunch-assistant.findBugs",
+        "title": "CyberLaunch: Find Bugs in Selected Code"
+      },
+      {
+        "command": "cyberlaunch-assistant.securityReview",
+        "title": "CyberLaunch: Security Review Selected Code"
+      },
+      {
+        "command": "cyberlaunch-assistant.improveSelectedCode",
+        "title": "CyberLaunch: Improve Selected Code"
+      },
+      {
         "command": "cyberlaunch-assistant.setApiKey",
         "title": "CyberLaunch: Set OpenAI API Key"
       }
-    ]
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "cyberlaunch-assistant.explainSelectedCode",
+          "group": "cyberlaunch@1",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "cyberlaunch-assistant.findBugs",
+          "group": "cyberlaunch@2",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "cyberlaunch-assistant.securityReview",
+          "group": "cyberlaunch@3",
+          "when": "editorHasSelection"
+        },
+        {
+          "command": "cyberlaunch-assistant.improveSelectedCode",
+          "group": "cyberlaunch@4",
+          "when": "editorHasSelection"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
