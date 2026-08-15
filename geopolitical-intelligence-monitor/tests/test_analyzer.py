@@ -119,3 +119,19 @@ def test_irrelevant_analysis_still_explains_result() -> None:
         "Overall impact: MINIMAL",
         "Overall escalation: NEUTRAL",
     )
+
+def test_analysis_contains_confidence() -> None:
+    result = analyze(
+        "North Korea conducted a ballistic missile launch."
+    )
+
+    assert result.confidence.score >= 0
+    assert result.confidence.level is not None
+
+
+def test_confidence_contains_reasoning() -> None:
+    result = analyze(
+        "China announced military exercises around Taiwan."
+    )
+
+    assert len(result.confidence.reasons) > 0
