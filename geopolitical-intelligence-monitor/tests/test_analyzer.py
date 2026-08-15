@@ -89,3 +89,33 @@ def test_irrelevant_text_returns_minimal_analysis() -> None:
     assert result.theaters == ()
     assert result.impact is Impact.MINIMAL
     assert result.escalation is Escalation.NEUTRAL
+
+def test_analysis_includes_reasoning() -> None:
+    result = analyze(
+        "North Korea conducted a ballistic missile launch."
+    )
+
+    assert any(
+        reason == "Detected entity: North Korea"
+        for reason in result.reasoning
+    )
+
+    assert any(
+        reason.startswith("Detected indicator: Ballistic Missile Launch")
+        for reason in result.reasoning
+    )
+
+    assert "Assigned theater: Indo-Pacific" in result.reasoning
+    assert "Overall impact: CRITICAL" in result.reasoning
+    assert "Overall escalation: INCREASE_MAJOR" in result.reasoning
+
+
+def test_irrelevant_analysis_still_explains_result() -> None:
+    result = analyze(
+        "A teenager announced plans to debut in a K-pop group."
+    )
+
+    assert result.reasoning == (
+        "Overall impact: MINIMAL",
+        "Overall escalation: NEUTRAL",
+    )

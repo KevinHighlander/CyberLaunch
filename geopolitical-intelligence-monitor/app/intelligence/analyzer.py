@@ -21,6 +21,7 @@ class AnalysisResult:
     theaters: tuple[IntelligenceTheater, ...]
     impact: Impact
     escalation: Escalation
+    reasoning: tuple[str, ...]
 
 
 def _resolve_theaters(
@@ -56,12 +57,7 @@ def _highest_impact(
 def _combined_escalation(
     indicators: tuple[IntelligenceIndicator, ...],
 ) -> Escalation:
-    """
-    Combine indicator escalation effects into a bounded result.
-
-    Multiple indicators may reinforce one another, but the final result is
-    constrained to the supported Escalation range.
-    """
+    """Combine escalation effects into a bounded result."""
     if not indicators:
         return Escalation.NEUTRAL
 
@@ -75,17 +71,56 @@ def _combined_escalation(
     return Escalation(bounded_score)
 
 
+def _build_reasoning(
+    entities: tuple[IntelligenceEntity, ...],
+    indicators: tuple[IntelligenceIndicator, ...],
+    theaters: tuple[IntelligenceTheater, ...],
+    impact: Impact,
+    escalation: Escalation,
+) -> tuple[str, ...]:
+    """Build a human-readable explanation of the analysis."""
+    reasons: list[str] = []
+
+    for entity in entities:
+        reasons.append(f"Detected entity: {entity.display_name}")
+
+    for indicator in indicators:
+        reasons.append(
+            f"Detected indicator: {indicator.display_name} "
+            f"(impact={indicator.impact.name}, "
+            f"escalation={indicator.escalation.name})"
+        )
+
+    for theater in theaters:
+        reasons.append(f"Assigned theater: {theater.display_name}")
+
+    reasons.append(f"Overall impact: {impact.name}")
+    reasons.append(f"Overall escalation: {escalation.name}")
+
+    return tuple(reasons)
+
+
 def analyze(text: str) -> AnalysisResult:
     """Analyze supplied text using CLIM ontology and indicators."""
     entities = find_entities(text)
     indicators = find_indicators(text)
     theaters = _resolve_theaters(entities)
+    impact = _highest_impact(indicators)
+    escalation = _combined_escalation(indicators)
+    reasoning = _build_reasoning(
+        entities=entities,
+        indicators=indicators,
+        theaters=theaters,
+        impact=impact,
+        escalation=escalation,
+    )
 
     return AnalysisResult(
         text=text,
         entities=entities,
         indicators=indicators,
         theaters=theaters,
-        impact=_highest_impact(indicators),
-        escalation=_combined_escalation(indicators),
+        impact=impact,
+        escalation=escalation,
+        reasoning=reasoning,
     )
