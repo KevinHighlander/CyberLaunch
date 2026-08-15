@@ -20,7 +20,10 @@ def test_alias_finds_russia() -> None:
         "The Russian Federation announced new military activity."
     )
 
-    assert any(entity.key == "russia" for entity in matches)
+    assert any(
+        entity.key == "russia"
+        for entity in matches
+    )
 
 
 def test_dprk_alias_finds_north_korea() -> None:
@@ -28,7 +31,10 @@ def test_dprk_alias_finds_north_korea() -> None:
         "The DPRK conducted another missile launch."
     )
 
-    assert any(entity.key == "north-korea" for entity in matches)
+    assert any(
+        entity.key == "north-korea"
+        for entity in matches
+    )
 
 
 def test_pacific_fleet_links_to_russia() -> None:
@@ -49,3 +55,25 @@ def test_russia_has_child_entities() -> None:
 
 def test_unknown_entity_returns_none() -> None:
     assert get_entity("definitely-not-real") is None
+
+
+def test_partial_alias_does_not_match() -> None:
+    matches = find_entities(
+        "A teenager announced plans to debut in a K-pop group."
+    )
+
+    assert all(
+        entity.key not in {"pla", "pla-navy"}
+        for entity in matches
+    )
+
+
+def test_us_alias_does_not_match_inside_other_words() -> None:
+    matches = find_entities(
+        "The business announced a new product."
+    )
+
+    assert all(
+        entity.key != "united-states"
+        for entity in matches
+    )

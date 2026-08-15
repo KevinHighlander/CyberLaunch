@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 
 
@@ -97,7 +98,13 @@ ENTITIES: dict[str, IntelligenceEntity] = {
         key="united-states",
         display_name="United States",
         entity_type="state",
-        theater_keys=("americas", "indo-pacific", "europe", "middle-east", "arctic"),
+        theater_keys=(
+            "americas",
+            "indo-pacific",
+            "europe",
+            "middle-east",
+            "arctic",
+        ),
         aliases=(
             "united states",
             "united states of america",
@@ -201,14 +208,21 @@ def get_all_entities() -> tuple[IntelligenceEntity, ...]:
     return tuple(ENTITIES.values())
 
 
-def find_entities(text: str) -> tuple[IntelligenceEntity, ...]:
-    """Return entities whose aliases appear in the supplied text."""
-    normalized = text.lower()
+def _contains_alias(text: str, alias: str) -> bool:
+    """Return whether an alias appears as a complete term in text."""
+    pattern = rf"(?<!\w){re.escape(alias)}(?!\w)"
+    return re.search(pattern, text, flags=re.IGNORECASE) is not None
 
+
+def find_entities(text: str) -> tuple[IntelligenceEntity, ...]:
+    """Return entities whose aliases appear as complete terms in supplied text."""
     matches = [
         entity
         for entity in ENTITIES.values()
-        if any(alias in normalized for alias in entity.aliases)
+        if any(
+            _contains_alias(text, alias)
+            for alias in entity.aliases
+        )
     ]
 
     return tuple(matches)
