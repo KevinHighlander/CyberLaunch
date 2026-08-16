@@ -109,3 +109,19 @@ mark can cause Python or the shell to interpret later instructions as part of
 an unfinished string. Unexpected continuation prompts such as `...` or
 `dquote>` are signals to cancel the instruction and inspect matching quotation
 marks before trying again.
+
+### Why would averaging all absolute differences produce a misleading similarity score?
+
+Averaging the raw absolute differences would be misleading because the features
+use different numerical scales. A difference of 1.0 would be extremely large
+for vocabulary richness, which ranges from 0 to 1, but relatively small for
+average sentence length or punctuation per 100 words. Features with larger
+numeric ranges would therefore dominate the result.
+
+Absolute differences also remove direction, and a single average could hide
+which specific writing patterns were similar or different. The features need
+to be placed on comparable scales before they can contribute fairly to an
+overall similarity measurement.
+
+### Why are we keeping per-feature similarities instead of producing one AI-detection score?
+

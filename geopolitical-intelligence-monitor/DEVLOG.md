@@ -470,7 +470,7 @@ The test suite currently covers:
 
 ### Current Test Status
 
-**54 passing tests**
+**75 passing tests**
 
 ### Development Quality Gate
 
@@ -657,3 +657,75 @@ It should be able to answer:
 The long-term goal is not to replace human analysts.
 
 The goal is to make large volumes of public information easier to evaluate, connect, verify, and understand.
+
+## Version 0.3 — Operation Atlas
+
+### Status
+
+Complete
+
+### Objective
+
+Introduce typed source metadata, normalized events, analyzed events, and a clean end-to-end intelligence pipeline.
+
+### Major Accomplishments
+
+- Added typed `IntelligenceSource` model.
+- Replaced loose source dictionaries with a typed source registry.
+- Added `NormalizedEvent`.
+- Added `AnalyzedEvent`.
+- Refactored RSS collection to produce normalized events.
+- Connected normalization to the intelligence analyzer.
+- Connected analyzed events to SQLite persistence.
+- Preserved deduplication across the new pipeline.
+- Added pipeline integration tests.
+
+### Current Pipeline
+
+```text
+Public Source
+    ↓
+Collector
+    ↓
+NormalizedEvent
+    ↓
+Analyzer
+    ↓
+AnalyzedEvent
+    ↓
+SQLite
+
+```
+## Version 0.4 — Operation Fusion
+
+### Status
+
+Complete
+
+### Objective
+
+Begin correlating multiple reports that may describe the same underlying real-world event.
+
+### Major Accomplishments
+
+- Added pairwise report correlation.
+- Added deterministic correlation scores.
+- Added shared-term reporting.
+- Added correlation thresholds.
+- Added multi-report correlation groups.
+- Added unique-source counting.
+- Added corroboration detection.
+- Prevented repeated reporting from a single outlet from being treated as independent corroboration.
+
+### Correlation Flow
+
+```text
+Report A ─┐
+Report B ─┼── Correlation Group
+Report C ─┘
+
+Unique sources
+    ↓
+Corroboration
+    ↓
+Future confidence integration

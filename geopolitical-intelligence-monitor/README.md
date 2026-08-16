@@ -1,68 +1,57 @@
 # CyberLaunch Intelligence Monitor (CLIM)
 
-CLIM is an open-source OSINT and geopolitical intelligence platform designed to transform public information into explainable, evidence-based assessments.
+CyberLaunch Intelligence Monitor, or **CLIM**, is an open-source OSINT and intelligence-analysis platform designed to transform public reporting into structured, explainable, evidence-based intelligence.
+
+CLIM does not simply aggregate headlines. It collects information, normalizes reports, identifies strategic entities and behaviors, evaluates impact and escalation, assesses source confidence, correlates related reporting, and preserves the reasoning behind its conclusions.
 
 ## Mission
 
-Transform public information into explainable, evidence-based intelligence assessments.
+> Transform public information into explainable, evidence-based intelligence assessments.
 
-## Core principles
+## Current Capabilities
 
-- **Evidence first:** every assessment should be traceable to source material.
-- **Explainability:** scores and classifications should have understandable reasons.
-- **Human in the loop:** CLIM supports analysts; it does not replace them.
-- **Modular architecture:** collection, intelligence, storage, and presentation stay loosely coupled.
-- **Security by default:** secrets and runtime data are never committed.
-- **Verify before trusting:** provenance matters, including for official sources and AI output.
+CLIM currently supports:
 
-## Initial watch areas
+- RSS/Atom collection
+- Typed source registry
+- Normalized intelligence events
+- Strategic entity recognition
+- Intelligence indicator detection
+- Theater resolution
+- Impact assessment
+- Escalation assessment
+- Source-confidence scoring
+- Explainable reasoning
+- SQLite persistence
+- Deduplication
+- Pairwise report correlation
+- Multi-report correlation groups
+- Automated linting and testing
 
-- Taiwan Strait
-- Korean Peninsula
-- Iran / Middle East
-- Russia–Japan / Kuril Islands
-
-## Pipeline
+## Intelligence Pipeline
 
 ```text
-Sources
-  ↓
-Collection
-  ↓
-Normalization
-  ↓
-Deduplication
-  ↓
-Watch Classification
-  ↓
-Significance Scoring
-  ↓
-Correlation
-  ↓
-Confidence
-  ↓
-Analyst Brief
-```
-
-## Setup
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-python3 -m pip install -r requirements.txt
-```
-
-Run:
-
-```bash
-python3 -m app.main
-```
-
-Validate:
-
-```bash
-python3 -m ruff check app tests
-python3 -m pytest
-```
-
-CLIM is currently in **Operation Genesis**, the clean v0.1 foundation phase.
+Public Sources
+      ↓
+Collectors
+      ↓
+NormalizedEvent
+      ↓
+Intelligence Analyzer
+      ├── Entity Recognition
+      ├── Indicator Detection
+      ├── Theater Resolution
+      ├── Impact Assessment
+      ├── Escalation Assessment
+      ├── Confidence Assessment
+      └── Explainable Reasoning
+      ↓
+AnalyzedEvent
+      ↓
+SQLite Storage
+      ↓
+Correlation Engine
+      ↓
+Correlation Groups
+      ↓
+Future Intelligence Fusion
