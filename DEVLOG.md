@@ -566,3 +566,21 @@ can explain rather than merely run.
 This log should continue to be updated after meaningful releases, repairs, and
 lessons. Future entries should preserve the same distinction between what Git
 confirms, what development history confirms, and what is still only planned.
+### CI Exposed Missing Model Package
+
+After introducing GitHub Actions CI, CLIM's first remote test run failed even though all 100 tests passed locally.
+
+Investigation showed that the CyberLaunch repository's parent `.gitignore` contained a broad `models/` rule. This unintentionally excluded CLIM's `app/models/` package from Git while leaving the files available on the local development machine.
+
+As a result, the local environment masked a repository integrity problem that appeared immediately on a clean GitHub Actions runner.
+
+The ignore configuration was corrected to explicitly preserve CLIM's model package, the missing source files were added to version control, and the complete quality gate was rerun.
+
+Final result:
+
+- Ruff: PASS
+- pytest: 100 PASS
+- GitHub Actions: PASS
+- Repository checkout independently verified
+
+This became the first defect discovered specifically because of CLIM's new continuous integration pipeline.
