@@ -39,6 +39,8 @@ lecture-downloader/config.json
 *.h5
 datasets/
 models/
+!geopolitical-intelligence-monitor/app/models/
+!geopolitical-intelligence-monitor/app/models/**
 
 # Temporary files
 *.tmp
