@@ -11,7 +11,8 @@ from app.intelligence.confidence import ConfidenceResult, assess_confidence
 from app.intelligence.indicators import IntelligenceIndicator, find_indicators
 from app.ontology.entities import IntelligenceEntity, find_entities
 from app.ontology.theaters import IntelligenceTheater, get_theater
-
+from itertools import combinations
+from app.ontology.links import get_link
 
 @dataclass(frozen=True, slots=True)
 class AnalysisResult:
@@ -80,6 +81,47 @@ def _combined_escalation(
     return Escalation(bounded_score)
 
 
+def _relationship_reasoning(
+    entities: tuple[IntelligenceEntity, ...],
+) -> tuple[str, ...]:
+    """Return known relationships between detected entities."""
+    entities_by_key = {
+        entity.key: entity
+        for entity in entities
+    }
+
+    reasons: list[str] = []
+
+    for first, second in combinations(entities, 2):
+        link = get_link(
+            first.key,
+            second.key,
+        )
+
+        if link is None:
+            continue
+
+        source = entities_by_key.get(
+            link.source_key
+        )
+
+        target = entities_by_key.get(
+            link.target_key
+        )
+
+        if source is None or target is None:
+            continue
+
+        reasons.append(
+            "Known relationship: "
+            f"{source.display_name} ↔ "
+            f"{target.display_name} — "
+            f"{link.relationship}"
+        )
+
+    return tuple(reasons)
+
+
 def _build_reasoning(
     entities: tuple[IntelligenceEntity, ...],
     indicators: tuple[IntelligenceIndicator, ...],
@@ -101,6 +143,12 @@ def _build_reasoning(
             f"(impact={indicator.impact.name}, "
             f"escalation={indicator.escalation.name})"
         )
+
+    reasons.extend(
+        _relationship_reasoning(
+            entities
+        )
+    )
 
     for theater in theaters:
         reasons.append(

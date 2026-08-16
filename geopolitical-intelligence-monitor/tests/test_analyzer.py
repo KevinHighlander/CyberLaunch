@@ -90,6 +90,7 @@ def test_irrelevant_text_returns_minimal_analysis() -> None:
     assert result.impact is Impact.MINIMAL
     assert result.escalation is Escalation.NEUTRAL
 
+
 def test_analysis_includes_reasoning() -> None:
     result = analyze(
         "North Korea conducted a ballistic missile launch."
@@ -101,7 +102,9 @@ def test_analysis_includes_reasoning() -> None:
     )
 
     assert any(
-        reason.startswith("Detected indicator: Ballistic Missile Launch")
+        reason.startswith(
+            "Detected indicator: Ballistic Missile Launch"
+        )
         for reason in result.reasoning
     )
 
@@ -120,6 +123,7 @@ def test_irrelevant_analysis_still_explains_result() -> None:
         "Overall escalation: NEUTRAL",
     )
 
+
 def test_analysis_contains_confidence() -> None:
     result = analyze(
         "North Korea conducted a ballistic missile launch."
@@ -135,3 +139,56 @@ def test_confidence_contains_reasoning() -> None:
     )
 
     assert len(result.confidence.reasons) > 0
+
+
+def test_analysis_reports_known_relationship() -> None:
+    result = analyze(
+        "Russia and China announced new military exercises."
+    )
+
+    assert (
+        "Known relationship: "
+        "Russia ↔ China — strategic-partnership"
+        in result.reasoning
+    )
+
+
+def test_analysis_reports_russia_north_korea_relationship() -> None:
+    result = analyze(
+        "Russia and North Korea announced expanded military cooperation."
+    )
+
+    assert (
+        "Known relationship: "
+        "Russia ↔ North Korea — military-cooperation"
+        in result.reasoning
+    )
+
+
+def test_unrelated_entities_do_not_create_fake_relationship() -> None:
+    result = analyze(
+        "Iran and Japan issued separate statements."
+    )
+
+    assert not any(
+        reason.startswith(
+            "Known relationship:"
+        )
+        for reason in result.reasoning
+    )
+
+
+def test_relationship_is_reported_only_once() -> None:
+    result = analyze(
+        "China and Russia announced joint military exercises."
+    )
+
+    relationship_reasons = [
+        reason
+        for reason in result.reasoning
+        if reason.startswith(
+            "Known relationship:"
+        )
+    ]
+
+    assert len(relationship_reasons) == 1
