@@ -4,5 +4,5 @@ message: "If you use CLIM in research or demonstrations, please cite this projec
 authors:
   - family-names: "Highlander"
     given-names: "Kevin"
-version: "0.4.0-fusion"
+version: "0.6.0-century"
 license: "GPL-3.0-or-later"
