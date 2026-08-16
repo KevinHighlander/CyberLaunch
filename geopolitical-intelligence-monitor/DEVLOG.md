@@ -556,23 +556,19 @@ This marks the transition from a news-monitoring prototype into an intelligence 
 
 ---
 
-## Next Milestone — Operation Watchtower Phase 2
+```markdown
+## Next Milestone — Operation Polish / Fusion Phase 2
 
-Planned work includes:
+Planned objectives:
 
-### Event Normalization
-
-Separate raw collected reports from normalized intelligence events.
-
-Target flow:
-
-```text
-Collected Report
-    ↓
-Normalized Event
-    ↓
-Analysis
-```
+- Correlation confidence integration
+- Source diversity scoring
+- Contradiction detection
+- Government and defense collectors
+- Multi-source event fusion
+- Knowledge graph
+- Interactive dashboard
+- AI-assisted intelligence briefs
 
 ### Source Registry Expansion
 
@@ -729,3 +725,69 @@ Unique sources
 Corroboration
     ↓
 Future confidence integration
+
+## Release — v0.4 Operation Fusion
+
+### Status
+
+Released
+
+### Git Tag
+
+`v0.4-fusion`
+
+### Release Commit
+
+`4c9ff47bb95363f3143b9615d46d1fc27badfaba`
+
+### Release Summary
+
+Operation Fusion marks the point where CLIM moved beyond analysis of individual reports and began correlating multiple sources into likely shared real-world events.
+
+The release includes:
+
+- deterministic report correlation,
+- correlation groups,
+- unique-source counting,
+- corroboration detection,
+- typed source metadata,
+- normalized and analyzed event models,
+- explainable confidence scoring,
+- and 75 passing automated tests.
+
+The release also preserves the project's first notable entity-recognition regression fix: preventing `PLA` from matching inside unrelated words such as `plans`.
+
+# Hall of Fame
+
+## Engineering Milestones
+
+- 3 Tests Passed — Project Foundation
+- 14 Tests Passed — Ontology Introduced
+- 30 Tests Passed — Indicator Framework
+- 54 Tests Passed — Intelligence Analyzer Complete
+- 67 Tests Passed — Operation Atlas
+- 70 Tests Passed — Correlation Engine
+- 75 Tests Passed — Correlation Groups & Operation Fusion
+
+## License
+
+CyberLaunch Intelligence Monitor (CLIM) is licensed under the GNU General Public License v3.0 (GPL-3.0).
+
+See the [LICENSE](LICENSE) file for the complete license text.
+
+## Operation Century — 100 Passing Tests
+
+Operation Century was established with a deliberate constraint: the project would not reach 100 tests through filler or arbitrary test expansion.
+
+Each test added during the operation had to represent meaningful new intelligence capability.
+
+The final progression was:
+
+88 → Relationship-Aware Analysis  
+92 → Strategic Context Engine  
+96 → Source Diversity Engine  
+100 → Deterministic Intelligence Briefing
+
+At 100 passing tests, CLIM could collect, normalize, analyze, correlate, contextualize, evaluate, and present structured intelligence through a deterministic pipeline.
+
+This became the first major engineering-completeness milestone for the project.
