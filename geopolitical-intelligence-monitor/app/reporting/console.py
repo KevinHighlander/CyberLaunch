@@ -9,7 +9,7 @@ from app.config import (
 from app.storage.database import EventRepository
 
 
-def print_brief(
+def print_event_listing(
     repository: EventRepository,
 ) -> None:
     """Print significant stored intelligence events."""
