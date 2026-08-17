@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=80"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cyberlaunch-intelligence-monitor"
+version = "0.6.0"
+description = "Deterministic, explainable OSINT intelligence fusion platform."
+readme = "README.md"
+requires-python = ">=3.14"
+license = "GPL-3.0-or-later"
+
+authors = [
+    { name = "Kevin Highlander" }
+]
+
+dependencies = [
+    "feedparser==6.0.12",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==9.1.1",
+    "ruff==0.12.11",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py314"
+line-length = 88
