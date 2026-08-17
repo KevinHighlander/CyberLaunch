@@ -26,12 +26,22 @@ class ProcessedEvent:
 
 
 @dataclass(frozen=True, slots=True)
+class CollectionNotice:
+    """A structured message produced during collection."""
+
+    level: str
+    source_name: str
+    message: str
+
+
+@dataclass(frozen=True, slots=True)
 class CollectionRun:
     """Results from one CLIM collection cycle."""
 
     discovered: int
     inserted: int
     analyses: tuple[AnalysisResult, ...]
+    notices: tuple[CollectionNotice, ...]
 
 
 def process_event(
@@ -100,14 +110,27 @@ def collect_intelligence_run(
     discovered = 0
     inserted = 0
     analyses: list[AnalysisResult] = []
+    notices: list[CollectionNotice] = []
 
     for source in get_enabled_sources(collector="rss"):
-        print(f"[COLLECT] {source.display_name}")
+        notices.append(
+            CollectionNotice(
+                level="collect",
+                source_name=source.display_name,
+                message=f"Collecting {source.display_name}",
+            )
+        )
 
         try:
             events = collect_feed(source)
         except FeedCollectionError as error:
-            print(f"[ERROR] {error}")
+            notices.append(
+                CollectionNotice(
+                    level="error",
+                    source_name=source.display_name,
+                    message=str(error),
+                )
+            )
             continue
 
         discovered += len(events)
@@ -123,6 +146,7 @@ def collect_intelligence_run(
         discovered=discovered,
         inserted=inserted,
         analyses=tuple(analyses),
+        notices=tuple(notices),
     )
 
 

@@ -21,6 +21,16 @@ def main() -> None:
         repository
     )
 
+    for notice in result.notices:
+        if notice.level == "collect":
+            print(
+                f"[COLLECT] {notice.source_name}"
+            )
+        elif notice.level == "error":
+            print(
+                f"[ERROR] {notice.message}"
+            )
+
     print()
     print(
         f"[RESULT] {result.discovered} "
