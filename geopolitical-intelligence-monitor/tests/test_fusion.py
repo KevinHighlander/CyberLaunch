@@ -78,3 +78,65 @@ def test_unrelated_reports_remain_separate() -> None:
     fused = fuse_events(events)
 
     assert len(fused) == 2
+
+def test_fused_event_includes_source_diversity() -> None:
+    events = [
+        make_event(
+            "China launches military exercises around Taiwan",
+            source="Reuters",
+        ),
+        make_event(
+            "China begins military drills near Taiwan",
+            source="BBC",
+        ),
+    ]
+
+    fused = fuse_events(events)[0]
+
+    assert fused.source_diversity.unique_sources == 2
+
+
+def test_duplicate_source_does_not_inflate_fused_diversity() -> None:
+    events = [
+        make_event(
+            "China launches military exercises around Taiwan",
+            source="Reuters",
+        ),
+        make_event(
+            "China begins military drills near Taiwan",
+            source="Reuters",
+        ),
+    ]
+
+    fused = fuse_events(events)[0]
+
+    assert fused.source_diversity.unique_sources == 1
+
+
+def test_fusion_confidence_uses_corroborating_sources() -> None:
+    single = fuse_events(
+        [
+            make_event(
+                "China launches military exercises around Taiwan",
+                source="Reuters",
+            ),
+        ]
+    )[0]
+
+    corroborated = fuse_events(
+        [
+            make_event(
+                "China launches military exercises around Taiwan",
+                source="Reuters",
+            ),
+            make_event(
+                "China begins military drills near Taiwan",
+                source="BBC",
+            ),
+        ]
+    )[0]
+
+    assert (
+        corroborated.analysis.confidence.score
+        > single.analysis.confidence.score
+    ) 

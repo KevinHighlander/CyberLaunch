@@ -9,6 +9,10 @@ from app.intelligence.correlation_groups import (
     CorrelationGroup,
     group_events,
 )
+from app.intelligence.source_diversity import (
+    SourceDiversityResult,
+    assess_event_source_diversity,
+)
 from app.models.normalized_event import NormalizedEvent
 
 
@@ -18,6 +22,7 @@ class FusedEvent:
 
     group: CorrelationGroup
     analysis: AnalysisResult
+    source_diversity: SourceDiversityResult
 
     @property
     def source_count(self) -> int:
@@ -44,9 +49,14 @@ def fuse_group(
         corroborating_sources=group.source_count,
     )
 
+    source_diversity = assess_event_source_diversity(
+        group.events
+    )
+
     return FusedEvent(
         group=group,
         analysis=analysis,
+        source_diversity=source_diversity,
     )
 
 
@@ -55,7 +65,7 @@ def fuse_events(
     *,
     threshold: float = 0.40,
 ) -> tuple[FusedEvent, ...]:
-    """Correlate normalized reports and analyze the resulting event groups."""
+    """Correlate reports and analyze the resulting event groups."""
     groups = group_events(
         events,
         threshold=threshold,
