@@ -791,3 +791,33 @@ The final progression was:
 At 100 passing tests, CLIM could collect, normalize, analyze, correlate, contextualize, evaluate, and present structured intelligence through a deterministic pipeline.
 
 This became the first major engineering-completeness milestone for the project.
+
+### Operation Hardening IV — Legacy Architecture Removal
+
+A technical-debt audit identified an obsolete significance-scoring
+architecture that had been superseded by CLIM's modern analyzer.
+
+The legacy `IntelligenceEvent` model and `score_event()` significance
+engine were no longer part of the runtime pipeline and duplicated
+concepts now represented by typed models, ontology-driven indicators,
+impact levels, and confidence analysis.
+
+Removed:
+
+- `app/intelligence/significance.py`
+- `app/models/event.py`
+- `tests/test_significance.py`
+- `tests/test_event.py`
+
+The test suite intentionally decreased from 100 to 94 tests because six
+tests existed exclusively to protect the removed legacy architecture.
+
+Final validation:
+
+- Ruff: PASS
+- pytest: 94 PASS
+- Legacy references: NONE
+
+The earlier 100-test Operation Century milestone remains historically
+valid. Hardening IV reduced the test count by removing obsolete behavior,
+not by losing coverage of the active architecture.
