@@ -2,10 +2,7 @@
 
 from __future__ import annotations
 
-from app.intelligence.pipeline import (
-    analyze_event,
-    collect_intelligence,
-)
+from app.intelligence.pipeline import collect_intelligence
 from app.reporting.console import print_brief
 from app.storage.database import EventRepository
 

@@ -5,7 +5,7 @@ from app.enums.source import (
     SourceAuthority,
     SourceReliability,
 )
-from app.main import analyze_event
+from app.intelligence.pipeline import analyze_event
 from app.models.normalized_event import NormalizedEvent
 
 
