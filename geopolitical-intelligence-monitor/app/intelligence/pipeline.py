@@ -2,23 +2,42 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import datetime, timezone
 
 from app.collectors.rss import (
     FeedCollectionError,
     collect_feed,
 )
-from app.intelligence.analyzer import analyze
+from app.intelligence.analyzer import AnalysisResult, analyze
 from app.models.analyzed_event import AnalyzedEvent
 from app.models.normalized_event import NormalizedEvent
 from app.sources import get_enabled_sources
 from app.storage.database import EventRepository
 
 
-def analyze_event(
+@dataclass(frozen=True, slots=True)
+class ProcessedEvent:
+    """A normalized report and both forms of its analysis."""
+
+    normalized: NormalizedEvent
+    analysis: AnalysisResult
+    analyzed: AnalyzedEvent
+
+
+@dataclass(frozen=True, slots=True)
+class CollectionRun:
+    """Results from one CLIM collection cycle."""
+
+    discovered: int
+    inserted: int
+    analyses: tuple[AnalysisResult, ...]
+
+
+def process_event(
     event: NormalizedEvent,
-) -> AnalyzedEvent:
-    """Convert a normalized report into a persistable analyzed event."""
+) -> ProcessedEvent:
+    """Analyze one normalized event and prepare it for persistence."""
     analysis = analyze(
         event.analysis_text,
         authority=event.source_authority,
@@ -42,7 +61,7 @@ def analyze_event(
     else:
         category = "general"
 
-    return AnalyzedEvent(
+    analyzed = AnalyzedEvent(
         event_uid=event.event_uid,
         title=event.title,
         summary=event.summary,
@@ -60,13 +79,27 @@ def analyze_event(
         confidence=analysis.confidence.level,
     )
 
+    return ProcessedEvent(
+        normalized=event,
+        analysis=analysis,
+        analyzed=analyzed,
+    )
 
-def collect_intelligence(
+
+def analyze_event(
+    event: NormalizedEvent,
+) -> AnalyzedEvent:
+    """Convert a normalized report into a persistable analyzed event."""
+    return process_event(event).analyzed
+
+
+def collect_intelligence_run(
     repository: EventRepository,
-) -> tuple[int, int]:
-    """Collect, analyze, and store enabled RSS sources."""
+) -> CollectionRun:
+    """Collect, analyze, store, and retain fresh intelligence analysis."""
     discovered = 0
     inserted = 0
+    analyses: list[AnalysisResult] = []
 
     for source in get_enabled_sources(collector="rss"):
         print(f"[COLLECT] {source.display_name}")
@@ -80,9 +113,26 @@ def collect_intelligence(
         discovered += len(events)
 
         for normalized_event in events:
-            analyzed_event = analyze_event(normalized_event)
+            processed = process_event(normalized_event)
 
-            if repository.insert(analyzed_event):
+            if repository.insert(processed.analyzed):
                 inserted += 1
+                analyses.append(processed.analysis)
 
-    return discovered, inserted
+    return CollectionRun(
+        discovered=discovered,
+        inserted=inserted,
+        analyses=tuple(analyses),
+    )
+
+
+def collect_intelligence(
+    repository: EventRepository,
+) -> tuple[int, int]:
+    """Collect, analyze, and store enabled RSS sources."""
+    result = collect_intelligence_run(repository)
+
+    return (
+        result.discovered,
+        result.inserted,
+    )
