@@ -821,3 +821,226 @@ Final validation:
 The earlier 100-test Operation Century milestone remains historically
 valid. Hardening IV reduced the test count by removing obsolete behavior,
 not by losing coverage of the active architecture.
+
+## Operation Hardening V — Reporting Architecture and Runtime Integration
+
+Operation Hardening V focused on making CLIM's reporting architecture match the intelligence pipeline that had already been built.
+
+During the architecture audit, I discovered that CLIM had two reporting functions with very similar names but very different responsibilities.
+
+The existing console reporter displayed significant events that had already been flattened and stored in SQLite, while the newer deterministic briefing engine operated directly on the much richer `AnalysisResult` produced by the intelligence analyzer.
+
+Rather than combining these systems and losing information, I separated their responsibilities more clearly.
+
+### Reporting Interface Cleanup
+
+The older console function:
+
+`print_brief()`
+
+was renamed to:
+
+`print_event_listing()`
+
+This clarified that the console module is responsible for displaying significant events already stored in the database.
+
+The deterministic briefing engine remains:
+
+`build_brief()`
+
+and is responsible for generating richer intelligence products containing entities, indicators, theaters, confidence information, strategic context, and explainable analysis reasoning.
+
+### Preserving Analysis Results
+
+The pipeline previously followed this pattern:
+
+`NormalizedEvent → AnalysisResult → AnalyzedEvent → SQLite`
+
+The `AnalysisResult` contained CLIM's richest intelligence information, but it was discarded after being converted into the smaller persistence model.
+
+To correct this, I introduced a processing layer that preserves both representations.
+
+The new flow is:
+
+`NormalizedEvent → process_event() → AnalysisResult + AnalyzedEvent`
+
+The `AnalyzedEvent` continues into SQLite while the original `AnalysisResult` remains available for reporting.
+
+New pipeline result structures were introduced to make this explicit and typed.
+
+### Live Briefing Integration
+
+CLIM's runtime can now send newly inserted significant events directly into the deterministic briefing engine.
+
+The live execution path is now:
+
+`RSS → Normalization → Analysis → Persistence → Intelligence Brief → Stored Event Listing`
+
+Only newly inserted events are retained for immediate rich briefing. This prevents repeated executions against unchanged feeds from producing duplicate intelligence briefs while still allowing the database listing to display previously stored significant events.
+
+This change finally connected the deterministic intelligence briefing engine created during Operation Century to CLIM's real application runtime.
+
+### Validation
+
+The complete quality gate was executed after the refactor:
+
+- Ruff: PASS
+- pytest: 94 PASS
+- Runtime smoke test: PASS
+- Intelligence collection: PASS
+- Database persistence: PASS
+- Deterministic briefing runtime: PASS
+- Stored event listing: PASS
+
+No active intelligence behavior was lost during the refactor.
+
+### Engineering Outcome
+
+Operation Hardening V established two explicit reporting layers:
+
+- `build_brief()` — rich deterministic intelligence analysis
+- `print_event_listing()` — persistent database event reporting
+
+More importantly, CLIM no longer destroys its richest analysis object immediately after persistence.
+
+The intelligence pipeline now preserves enough information for the analysis engine and reporting engine to operate as connected parts of the same system.
+
+This marked another step away from CLIM being a collection of working components and toward it behaving as one coherent intelligence platform.
+
+## Operation Hardening VI — Presentation Decoupling
+
+Operation Hardening VI removed terminal-specific presentation behavior from CLIM's intelligence pipeline.
+
+During the architecture checkpoint, I identified that `app/intelligence/pipeline.py` was directly printing collection and error messages. Although this worked for the command-line application, it coupled the intelligence engine to a terminal interface.
+
+I replaced these direct output operations with structured `CollectionNotice` objects returned as part of `CollectionRun`.
+
+The pipeline now reports collection activity through structured data rather than writing directly to stdout.
+
+Responsibility for displaying these notices moved to `app/main.py`, where interface-specific presentation belongs.
+
+The resulting boundary is now:
+
+`Collectors → Pipeline → Analyzer → Models/Storage → Structured Results`
+
+followed by:
+
+`main.py → Reporting → Terminal`
+
+This makes the intelligence pipeline reusable by future interfaces such as a REST API, dashboard, desktop application, mobile client, or other CyberLaunch components without requiring changes to the core intelligence engine.
+
+Validation after the refactor:
+
+- Ruff: PASS
+- pytest: 94 PASS
+- Runtime smoke test: PASS
+- Collection reporting: PASS
+- Error reporting: structured and interface-controlled
+- Test execution time improved slightly during local validation
+
+No intelligence behavior was intentionally changed.
+
+Operation Hardening VI established a cleaner separation between CLIM's intelligence engine and its user interface.
+
+## Operation Convergence — Intelligence Fusion Begins
+
+After completing the major Operation Hardening work, I began integrating several CLIM intelligence capabilities that had previously existed as independently tested subsystems.
+
+The goal of Operation Convergence is to move CLIM beyond analyzing individual reports and toward fusing multiple reports into a shared intelligence assessment.
+
+### Convergence I — Multi-Report Intelligence Fusion
+
+I introduced `app/intelligence/fusion.py` as the first dedicated fusion layer.
+
+CLIM can now take multiple normalized reports, pass them through the existing correlation engine, group reports believed to describe the same real-world event, and analyze each resulting correlation group as a single fused intelligence event.
+
+The new `FusedEvent` model preserves both the correlation group and its shared `AnalysisResult`.
+
+The resulting flow is:
+
+`NormalizedEvent[] → Correlation Groups → FusedEvent → AnalysisResult`
+
+The number of unique reporting sources in a correlation group is now passed into the analyzer as the corroborating-source count.
+
+This connected CLIM's previously independent correlation and confidence capabilities.
+
+Validation after Convergence I:
+
+- Ruff: PASS
+- pytest: 97 PASS
+- Related reports grouped successfully
+- Unrelated reports remained separate
+- Corroborated groups tracked independent source counts
+
+### Convergence II — Source Diversity Integration
+
+The next step integrated CLIM's source-diversity engine into the fusion layer.
+
+The existing source-diversity system originally accepted only registered `IntelligenceSource` objects. Correlated events, however, contain `NormalizedEvent` source metadata.
+
+Rather than constructing artificial source objects, I refactored the diversity engine around a shared internal scoring function.
+
+CLIM now supports diversity assessment from both:
+
+- registered `IntelligenceSource` objects
+- source metadata contained in `NormalizedEvent` reports
+
+Each `FusedEvent` now contains a `SourceDiversityResult` describing:
+
+- number of unique sources
+- number of reporting countries
+- number of source types
+- overall diversity score
+- deterministic reasons supporting that score
+
+Duplicate reports from the same source do not artificially increase source diversity.
+
+Most importantly, fusion now connects actual corroboration to confidence analysis. A correlated event supported by multiple independent sources receives stronger confidence evidence than the same event supported by only one report.
+
+### 100-Test Milestone Reached Again
+
+Operation Convergence II brought the active test suite back to:
+
+**100 passing tests**
+
+This differs from the original Operation Century milestone.
+
+During Operation Hardening IV, six tests were intentionally removed along with obsolete legacy architecture, reducing the active suite from 100 to 94 tests.
+
+Operation Convergence subsequently earned those tests back through new intelligence-fusion behavior rather than replacing removed tests simply to restore the test count.
+
+The new tests validate active capabilities involving:
+
+- event correlation
+- fusion groups
+- source corroboration
+- source diversity
+- duplicate-source handling
+- confidence improvement from independent reporting
+
+Final validation:
+
+- Ruff: PASS
+- pytest: 100 PASS
+- Correlation: PASS
+- Multi-report fusion: PASS
+- Source diversity: PASS
+- Corroboration-aware confidence: PASS
+
+### Current Fusion Architecture
+
+CLIM's developing intelligence flow now resembles:
+
+`RSS Sources`
+→ `Normalized Events`
+→ `Correlation`
+→ `Correlation Groups`
+→ `Source Diversity`
+→ `Fused Events`
+→ `Analysis`
+→ `Confidence`
+→ `Intelligence Reporting`
+
+Operation Convergence marks the beginning of CLIM's transition from an event-analysis system into a multi-source intelligence fusion platform.
+
+The next planned integration is strategic context, followed by deeper use of the knowledge graph.
