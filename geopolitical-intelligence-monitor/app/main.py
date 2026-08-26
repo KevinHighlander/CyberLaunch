@@ -8,7 +8,7 @@ from app.config import (
 )
 from app.intelligence.fusion import fuse_events
 from app.intelligence.pipeline import collect_intelligence_run
-from app.reporting.brief import build_brief
+from app.reporting.brief import build_fused_brief
 from app.reporting.console import print_event_listing
 from app.storage.database import EventRepository
 
@@ -64,8 +64,8 @@ def main() -> None:
     for fused_event in significant_fused_events:
         print()
         print(
-            build_brief(
-                fused_event.analysis
+            build_fused_brief(
+                fused_event
             )
         )
 
