@@ -95,6 +95,16 @@ class IncidentRepository:
                 """
             )
 
+            connection.execute(
+                """
+                CREATE INDEX IF NOT EXISTS
+                idx_incidents_updated_at
+                ON incidents(
+                    updated_at
+                )
+                """
+            )
+
     def _validate_membership(
         self,
         connection: sqlite3.Connection,
@@ -233,6 +243,39 @@ class IncidentRepository:
                 row["event_uid"]
                 for row in member_rows
             ),
+        )
+
+    def list_incidents(
+        self,
+    ) -> tuple[IntelligenceIncident, ...]:
+        """Return all persisted incidents in deterministic order."""
+        with self._connect() as connection:
+            rows = connection.execute(
+                """
+                SELECT incident_uid
+                FROM incidents
+                ORDER BY
+                    updated_at DESC,
+                    incident_uid ASC
+                """
+            ).fetchall()
+
+        incidents: list[
+            IntelligenceIncident
+        ] = []
+
+        for row in rows:
+            incident = self.get(
+                row["incident_uid"]
+            )
+
+            if incident is not None:
+                incidents.append(
+                    incident
+                )
+
+        return tuple(
+            incidents
         )
 
     def find_by_event(

@@ -287,3 +287,71 @@ def test_event_cannot_belong_to_two_incidents(
 
     assert loaded is not None
     assert loaded.incident_uid == "incident-1"
+
+
+def test_list_incidents_returns_all_incidents(
+    tmp_path: Path,
+) -> None:
+    repository = IncidentRepository(
+        tmp_path / "clim.db"
+    )
+
+    repository.initialize()
+
+    first_time = datetime(
+        2026,
+        8,
+        26,
+        12,
+        0,
+        tzinfo=timezone.utc,
+    )
+
+    second_time = (
+        first_time
+        + timedelta(
+            hours=1
+        )
+    )
+
+    repository.save(
+        make_incident(
+            incident_uid="incident-first",
+            event_uid="event-first",
+            observed_at=first_time,
+        )
+    )
+
+    repository.save(
+        make_incident(
+            incident_uid="incident-second",
+            event_uid="event-second",
+            observed_at=second_time,
+        )
+    )
+
+    incidents = repository.list_incidents()
+
+    assert len(
+        incidents
+    ) == 2
+
+    assert tuple(
+        incident.incident_uid
+        for incident in incidents
+    ) == (
+        "incident-second",
+        "incident-first",
+    )
+
+
+def test_list_incidents_returns_empty_tuple_when_none_exist(
+    tmp_path: Path,
+) -> None:
+    repository = IncidentRepository(
+        tmp_path / "clim.db"
+    )
+
+    repository.initialize()
+
+    assert repository.list_incidents() == ()
