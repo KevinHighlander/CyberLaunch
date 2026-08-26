@@ -6,6 +6,7 @@ from app.config import (
     BRIEF_EVENT_LIMIT,
     SIGNIFICANCE_THRESHOLD,
 )
+from app.intelligence.fusion import fuse_events
 from app.intelligence.pipeline import collect_intelligence_run
 from app.reporting.brief import build_brief
 from app.reporting.console import print_event_listing
@@ -13,7 +14,7 @@ from app.storage.database import EventRepository
 
 
 def main() -> None:
-    """Run one CLIM collection and analysis cycle."""
+    """Run one CLIM collection, fusion, and analysis cycle."""
     repository = EventRepository()
     repository.initialize()
 
@@ -41,24 +42,30 @@ def main() -> None:
         "new intelligence events stored"
     )
 
-    significant_analyses = sorted(
+    fused_events = fuse_events(
+        list(result.new_events)
+    )
+
+    significant_fused_events = sorted(
         (
-            analysis
-            for analysis in result.analyses
-            if int(analysis.impact)
+            fused_event
+            for fused_event in fused_events
+            if int(
+                fused_event.analysis.impact
+            )
             >= SIGNIFICANCE_THRESHOLD
         ),
-        key=lambda analysis: int(
-            analysis.impact
+        key=lambda fused_event: int(
+            fused_event.analysis.impact
         ),
         reverse=True,
     )[:BRIEF_EVENT_LIMIT]
 
-    for analysis in significant_analyses:
+    for fused_event in significant_fused_events:
         print()
         print(
             build_brief(
-                analysis
+                fused_event.analysis
             )
         )
 

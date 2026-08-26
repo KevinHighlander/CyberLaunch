@@ -40,6 +40,7 @@ class CollectionRun:
 
     discovered: int
     inserted: int
+    new_events: tuple[NormalizedEvent, ...]
     analyses: tuple[AnalysisResult, ...]
     notices: tuple[CollectionNotice, ...]
 
@@ -65,7 +66,9 @@ def process_event(
     if analysis.indicators:
         highest_indicator = max(
             analysis.indicators,
-            key=lambda indicator: int(indicator.impact),
+            key=lambda indicator: int(
+                indicator.impact
+            ),
         )
         category = highest_indicator.category
     else:
@@ -82,10 +85,14 @@ def process_event(
         source_authority=event.source_authority,
         source_reliability=event.source_reliability,
         published_at=event.published_at,
-        collected_at=datetime.now(timezone.utc),
+        collected_at=datetime.now(
+            timezone.utc
+        ),
         region=region,
         category=category,
-        significance=int(analysis.impact),
+        significance=int(
+            analysis.impact
+        ),
         confidence=analysis.confidence.level,
     )
 
@@ -100,7 +107,9 @@ def analyze_event(
     event: NormalizedEvent,
 ) -> AnalyzedEvent:
     """Convert a normalized report into a persistable analyzed event."""
-    return process_event(event).analyzed
+    return process_event(
+        event
+    ).analyzed
 
 
 def collect_intelligence_run(
@@ -109,44 +118,76 @@ def collect_intelligence_run(
     """Collect, analyze, store, and retain fresh intelligence analysis."""
     discovered = 0
     inserted = 0
+
+    new_events: list[NormalizedEvent] = []
     analyses: list[AnalysisResult] = []
     notices: list[CollectionNotice] = []
 
-    for source in get_enabled_sources(collector="rss"):
+    for source in get_enabled_sources(
+        collector="rss"
+    ):
         notices.append(
             CollectionNotice(
                 level="collect",
                 source_name=source.display_name,
-                message=f"Collecting {source.display_name}",
+                message=(
+                    f"Collecting "
+                    f"{source.display_name}"
+                ),
             )
         )
 
         try:
-            events = collect_feed(source)
+            events = collect_feed(
+                source
+            )
+
         except FeedCollectionError as error:
             notices.append(
                 CollectionNotice(
                     level="error",
                     source_name=source.display_name,
-                    message=str(error),
+                    message=str(
+                        error
+                    ),
                 )
             )
             continue
 
-        discovered += len(events)
+        discovered += len(
+            events
+        )
 
         for normalized_event in events:
-            processed = process_event(normalized_event)
+            processed = process_event(
+                normalized_event
+            )
 
-            if repository.insert(processed.analyzed):
+            if repository.insert(
+                processed.analyzed
+            ):
                 inserted += 1
-                analyses.append(processed.analysis)
+
+                new_events.append(
+                    processed.normalized
+                )
+
+                analyses.append(
+                    processed.analysis
+                )
 
     return CollectionRun(
         discovered=discovered,
         inserted=inserted,
-        analyses=tuple(analyses),
-        notices=tuple(notices),
+        new_events=tuple(
+            new_events
+        ),
+        analyses=tuple(
+            analyses
+        ),
+        notices=tuple(
+            notices
+        ),
     )
 
 
@@ -154,7 +195,9 @@ def collect_intelligence(
     repository: EventRepository,
 ) -> tuple[int, int]:
     """Collect, analyze, and store enabled RSS sources."""
-    result = collect_intelligence_run(repository)
+    result = collect_intelligence_run(
+        repository
+    )
 
     return (
         result.discovered,
