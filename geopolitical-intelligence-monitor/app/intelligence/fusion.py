@@ -62,6 +62,12 @@ def _build_fused_summary(
         else "independent sources"
     )
 
+    verb = (
+        "describes"
+        if group.event_count == 1
+        else "describe"
+    )
+
     if analysis.indicators:
         event_description = ", ".join(
             indicator.display_name
@@ -78,14 +84,58 @@ def _build_fused_summary(
 
         return (
             f"{group.event_count} {report_word} from "
-            f"{group.source_count} {source_word} describe "
+            f"{group.source_count} {source_word} {verb} "
             f"{event_description} involving {entity_names}."
         )
 
     return (
         f"{group.event_count} {report_word} from "
-        f"{group.source_count} {source_word} describe "
+        f"{group.source_count} {source_word} {verb} "
         f"{event_description}."
+    )
+
+
+def _build_background_knowledge(
+    analysis: AnalysisResult,
+) -> tuple[KnowledgeNeighborhood, ...]:
+    """
+    Return graph neighbors not already detected in the event.
+
+    Relationships between detected entities belong to strategic context.
+    Knowledge neighborhoods contain only external background connections.
+    """
+    detected_keys = {
+        entity.key
+        for entity in analysis.entities
+    }
+
+    snapshot = _KNOWLEDGE_GRAPH.snapshot(
+        tuple(
+            detected_keys
+        )
+    )
+
+    neighborhoods: list[KnowledgeNeighborhood] = []
+
+    for neighborhood in snapshot:
+        external_neighbors = tuple(
+            neighbor_key
+            for neighbor_key in neighborhood.neighbor_keys
+            if neighbor_key not in detected_keys
+        )
+
+        if not external_neighbors:
+            continue
+
+        neighborhoods.append(
+            KnowledgeNeighborhood(
+                entity_key=neighborhood.entity_key,
+                neighbor_keys=external_neighbors,
+            )
+        )
+
+    return tuple(
+        neighborhoods
     )
 
 
@@ -128,11 +178,8 @@ def fuse_group(
         group.events
     )
 
-    knowledge_neighborhoods = _KNOWLEDGE_GRAPH.snapshot(
-        tuple(
-            entity.key
-            for entity in analysis.entities
-        )
+    knowledge_neighborhoods = _build_background_knowledge(
+        analysis
     )
 
     return FusedEvent(

@@ -79,6 +79,7 @@ def test_unrelated_reports_remain_separate() -> None:
 
     assert len(fused) == 2
 
+
 def test_fused_event_includes_source_diversity() -> None:
     events = [
         make_event(
@@ -139,9 +140,10 @@ def test_fusion_confidence_uses_corroborating_sources() -> None:
     assert (
         corroborated.analysis.confidence.score
         > single.analysis.confidence.score
-    ) 
+    )
 
-def test_fused_event_includes_knowledge_neighborhoods() -> None:
+
+def test_fused_event_contains_only_external_knowledge_neighbors() -> None:
     events = [
         make_event(
             "China launches military exercises around Taiwan",
@@ -155,13 +157,14 @@ def test_fused_event_includes_knowledge_neighborhoods() -> None:
 
     fused = fuse_events(events)[0]
 
-    entity_keys = tuple(
-        neighborhood.entity_key
+    china = next(
+        neighborhood
         for neighborhood in fused.knowledge_neighborhoods
+        if neighborhood.entity_key == "china"
     )
 
-    assert "china" in entity_keys
-    assert "taiwan" in entity_keys
+    assert "russia" in china.neighbor_keys
+    assert "taiwan" not in china.neighbor_keys
 
 
 def test_knowledge_graph_does_not_invent_detected_entities() -> None:
@@ -192,6 +195,33 @@ def test_knowledge_graph_does_not_invent_detected_entities() -> None:
     assert "russia" in china.neighbor_keys
     assert "russia" not in detected_entities
 
+
+def test_detected_entities_are_not_repeated_as_background_knowledge() -> None:
+    events = [
+        make_event(
+            "China launches military exercises around Taiwan",
+            source="Reuters",
+        ),
+    ]
+
+    fused = fuse_events(events)[0]
+
+    detected_keys = {
+        entity.key
+        for entity in fused.analysis.entities
+    }
+
+    background_keys = {
+        neighbor_key
+        for neighborhood in fused.knowledge_neighborhoods
+        for neighbor_key in neighborhood.neighbor_keys
+    }
+
+    assert detected_keys.isdisjoint(
+        background_keys
+    )
+
+
 def test_fused_event_has_deterministic_summary() -> None:
     events = [
         make_event(
@@ -199,7 +229,7 @@ def test_fused_event_has_deterministic_summary() -> None:
             source="Reuters",
         ),
         make_event(
-            "China begins military drills around Taiwan",
+            "China begins military drills near Taiwan",
             source="BBC",
         ),
     ]
@@ -223,6 +253,6 @@ def test_single_report_summary_uses_singular_language() -> None:
     )[0]
 
     assert fused.summary == (
-        "1 report from 1 source describe "
+        "1 report from 1 source describes "
         "Ballistic Missile Launch involving North Korea."
     )
