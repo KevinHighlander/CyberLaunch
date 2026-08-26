@@ -8,11 +8,11 @@ from app.enums.escalation import Escalation
 from app.enums.impact import Impact
 from app.enums.source import SourceAuthority, SourceReliability
 from app.intelligence.confidence import ConfidenceResult, assess_confidence
+from app.intelligence.context import ContextResult, build_context
 from app.intelligence.indicators import IntelligenceIndicator, find_indicators
 from app.ontology.entities import IntelligenceEntity, find_entities
 from app.ontology.theaters import IntelligenceTheater, get_theater
-from itertools import combinations
-from app.ontology.links import get_link
+
 
 @dataclass(frozen=True, slots=True)
 class AnalysisResult:
@@ -24,6 +24,7 @@ class AnalysisResult:
     theaters: tuple[IntelligenceTheater, ...]
     impact: Impact
     escalation: Escalation
+    context: ContextResult
     reasoning: tuple[str, ...]
     confidence: ConfidenceResult
 
@@ -35,7 +36,9 @@ def _resolve_theaters(
     theater_keys: set[str] = set()
 
     for entity in entities:
-        theater_keys.update(entity.theater_keys)
+        theater_keys.update(
+            entity.theater_keys
+        )
 
     theaters: list[IntelligenceTheater] = []
 
@@ -55,7 +58,10 @@ def _highest_impact(
     if not indicators:
         return Impact.MINIMAL
 
-    return max(indicator.impact for indicator in indicators)
+    return max(
+        indicator.impact
+        for indicator in indicators
+    )
 
 
 def _combined_escalation(
@@ -78,48 +84,9 @@ def _combined_escalation(
         ),
     )
 
-    return Escalation(bounded_score)
-
-
-def _relationship_reasoning(
-    entities: tuple[IntelligenceEntity, ...],
-) -> tuple[str, ...]:
-    """Return known relationships between detected entities."""
-    entities_by_key = {
-        entity.key: entity
-        for entity in entities
-    }
-
-    reasons: list[str] = []
-
-    for first, second in combinations(entities, 2):
-        link = get_link(
-            first.key,
-            second.key,
-        )
-
-        if link is None:
-            continue
-
-        source = entities_by_key.get(
-            link.source_key
-        )
-
-        target = entities_by_key.get(
-            link.target_key
-        )
-
-        if source is None or target is None:
-            continue
-
-        reasons.append(
-            "Known relationship: "
-            f"{source.display_name} ↔ "
-            f"{target.display_name} — "
-            f"{link.relationship}"
-        )
-
-    return tuple(reasons)
+    return Escalation(
+        bounded_score
+    )
 
 
 def _build_reasoning(
@@ -143,12 +110,6 @@ def _build_reasoning(
             f"(impact={indicator.impact.name}, "
             f"escalation={indicator.escalation.name})"
         )
-
-    reasons.extend(
-        _relationship_reasoning(
-            entities
-        )
-    )
 
     for theater in theaters:
         reasons.append(
@@ -181,10 +142,21 @@ def analyze(
     """
     entities = find_entities(text)
     indicators = find_indicators(text)
-    theaters = _resolve_theaters(entities)
+    theaters = _resolve_theaters(
+        entities
+    )
 
-    impact = _highest_impact(indicators)
-    escalation = _combined_escalation(indicators)
+    impact = _highest_impact(
+        indicators
+    )
+
+    escalation = _combined_escalation(
+        indicators
+    )
+
+    context = build_context(
+        entities
+    )
 
     reasoning = _build_reasoning(
         entities=entities,
@@ -207,6 +179,7 @@ def analyze(
         theaters=theaters,
         impact=impact,
         escalation=escalation,
+        context=context,
         reasoning=reasoning,
         confidence=confidence,
     )

@@ -146,11 +146,12 @@ def test_analysis_reports_known_relationship() -> None:
         "Russia and China announced new military exercises."
     )
 
-    assert (
-        "Known relationship: "
-        "Russia ↔ China — strategic-partnership"
-        in result.reasoning
-    )
+    relationships = result.context.relationships
+
+    assert len(relationships) == 1
+    assert relationships[0].source_name == "Russia"
+    assert relationships[0].target_name == "China"
+    assert relationships[0].relationship == "strategic-partnership"
 
 
 def test_analysis_reports_russia_north_korea_relationship() -> None:
@@ -158,11 +159,10 @@ def test_analysis_reports_russia_north_korea_relationship() -> None:
         "Russia and North Korea announced expanded military cooperation."
     )
 
-    assert (
-        "Known relationship: "
-        "Russia ↔ North Korea — military-cooperation"
-        in result.reasoning
-    )
+    relationships = result.context.relationships
+
+    assert len(relationships) == 1
+    assert relationships[0].relationship == "military-cooperation"
 
 
 def test_unrelated_entities_do_not_create_fake_relationship() -> None:
@@ -170,12 +170,7 @@ def test_unrelated_entities_do_not_create_fake_relationship() -> None:
         "Iran and Japan issued separate statements."
     )
 
-    assert not any(
-        reason.startswith(
-            "Known relationship:"
-        )
-        for reason in result.reasoning
-    )
+    assert result.context.relationships == ()
 
 
 def test_relationship_is_reported_only_once() -> None:
@@ -183,12 +178,6 @@ def test_relationship_is_reported_only_once() -> None:
         "China and Russia announced joint military exercises."
     )
 
-    relationship_reasons = [
-        reason
-        for reason in result.reasoning
-        if reason.startswith(
-            "Known relationship:"
-        )
-    ]
-
-    assert len(relationship_reasons) == 1
+    assert len(
+        result.context.relationships
+    ) == 1

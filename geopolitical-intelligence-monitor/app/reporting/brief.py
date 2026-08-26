@@ -9,7 +9,6 @@ def build_brief(
     analysis: AnalysisResult,
 ) -> str:
     """Build a deterministic intelligence briefing."""
-
     lines: list[str] = []
 
     lines.append("=" * 54)
@@ -35,7 +34,9 @@ def build_brief(
         lines.append("-" * 54)
 
         for entity in analysis.entities:
-            lines.append(f"• {entity.display_name}")
+            lines.append(
+                f"• {entity.display_name}"
+            )
 
         lines.append("")
 
@@ -44,7 +45,9 @@ def build_brief(
         lines.append("-" * 54)
 
         for indicator in analysis.indicators:
-            lines.append(f"• {indicator.display_name}")
+            lines.append(
+                f"• {indicator.display_name}"
+            )
 
         lines.append("")
 
@@ -53,26 +56,26 @@ def build_brief(
         lines.append("-" * 54)
 
         for theater in analysis.theaters:
-            lines.append(f"• {theater.display_name}")
+            lines.append(
+                f"• {theater.display_name}"
+            )
 
         lines.append("")
 
-    relationship_lines = [
-        line
-        for line in analysis.reasoning
-        if line.startswith("Known relationship:")
-    ]
-
-    if relationship_lines:
+    if analysis.context.relationships:
         lines.append("Strategic Context")
         lines.append("-" * 54)
 
-        for line in relationship_lines:
+        for relationship in analysis.context.relationships:
             lines.append(
-                line.replace(
-                    "Known relationship: ",
-                    "• ",
-                )
+                "• "
+                f"{relationship.source_name} ↔ "
+                f"{relationship.target_name} — "
+                f"{relationship.relationship}"
+            )
+
+            lines.append(
+                f"  {relationship.description}"
             )
 
         lines.append("")
@@ -81,10 +84,9 @@ def build_brief(
     lines.append("-" * 54)
 
     for line in analysis.reasoning:
-        if line.startswith("Known relationship:"):
-            continue
-
-        lines.append(f"• {line}")
+        lines.append(
+            f"• {line}"
+        )
 
     lines.append("")
     lines.append("=" * 54)
