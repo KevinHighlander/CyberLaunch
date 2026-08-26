@@ -10,10 +10,15 @@ from app.collectors.rss import (
     collect_feed,
 )
 from app.intelligence.analyzer import AnalysisResult, analyze
+from app.intelligence.incident_service import (
+    IncidentUpdate,
+    resolve_and_persist_incident,
+)
 from app.models.analyzed_event import AnalyzedEvent
 from app.models.normalized_event import NormalizedEvent
 from app.sources import get_enabled_sources
 from app.storage.database import EventRepository
+from app.storage.incident_repository import IncidentRepository
 
 
 @dataclass(frozen=True, slots=True)
@@ -43,6 +48,7 @@ class CollectionRun:
     new_events: tuple[NormalizedEvent, ...]
     analyses: tuple[AnalysisResult, ...]
     notices: tuple[CollectionNotice, ...]
+    incident_updates: tuple[IncidentUpdate, ...]
 
 
 def process_event(
@@ -114,6 +120,7 @@ def analyze_event(
 
 def collect_intelligence_run(
     repository: EventRepository,
+    incident_repository: IncidentRepository | None = None,
 ) -> CollectionRun:
     """Collect, analyze, store, and retain fresh intelligence analysis."""
     discovered = 0
@@ -122,6 +129,7 @@ def collect_intelligence_run(
     new_events: list[NormalizedEvent] = []
     analyses: list[AnalysisResult] = []
     notices: list[CollectionNotice] = []
+    incident_updates: list[IncidentUpdate] = []
 
     for source in get_enabled_sources(
         collector="rss"
@@ -163,18 +171,36 @@ def collect_intelligence_run(
                 normalized_event
             )
 
-            if repository.insert(
+            if not repository.insert(
                 processed.analyzed
             ):
-                inserted += 1
+                continue
 
-                new_events.append(
-                    processed.normalized
-                )
+            inserted += 1
 
-                analyses.append(
-                    processed.analysis
+            new_events.append(
+                processed.normalized
+            )
+
+            analyses.append(
+                processed.analysis
+            )
+
+            if incident_repository is None:
+                continue
+
+            incident_update = (
+                resolve_and_persist_incident(
+                    processed.normalized,
+                    event_repository=repository,
+                    incident_repository=incident_repository,
+                    observed_at=processed.analyzed.collected_at,
                 )
+            )
+
+            incident_updates.append(
+                incident_update
+            )
 
     return CollectionRun(
         discovered=discovered,
@@ -188,15 +214,20 @@ def collect_intelligence_run(
         notices=tuple(
             notices
         ),
+        incident_updates=tuple(
+            incident_updates
+        ),
     )
 
 
 def collect_intelligence(
     repository: EventRepository,
+    incident_repository: IncidentRepository | None = None,
 ) -> tuple[int, int]:
     """Collect, analyze, and store enabled RSS sources."""
     result = collect_intelligence_run(
-        repository
+        repository,
+        incident_repository,
     )
 
     return (

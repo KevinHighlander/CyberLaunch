@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 from app.intelligence.incident_resolver import (
     IncidentResolution,
@@ -13,6 +13,11 @@ from app.models.intelligence_incident import IntelligenceIncident
 from app.models.normalized_event import NormalizedEvent
 from app.storage.database import EventRepository
 from app.storage.incident_repository import IncidentRepository
+
+
+DEFAULT_INCIDENT_LOOKBACK = timedelta(
+    hours=72
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -41,6 +46,25 @@ class IncidentUpdate:
     ) -> float:
         """Return the strongest matching correlation score."""
         return self.resolution.correlation_score
+
+
+def _utc_now() -> datetime:
+    """Return the current UTC time."""
+    return datetime.now(
+        timezone.utc
+    )
+
+
+def _validate_lookback(
+    lookback: timedelta,
+) -> timedelta:
+    """Require a positive incident lookback window."""
+    if lookback <= timedelta(0):
+        raise ValueError(
+            "Incident lookback must be greater than zero."
+        )
+
+    return lookback
 
 
 def _collect_event_uids(
@@ -75,15 +99,33 @@ def resolve_and_persist_incident(
     incident_repository: IncidentRepository,
     observed_at: datetime | None = None,
     threshold: float = 0.40,
+    lookback: timedelta = DEFAULT_INCIDENT_LOOKBACK,
 ) -> IncidentUpdate:
     """
-    Resolve one report against persisted incidents and save the result.
+    Resolve one report against recent persisted incidents and save it.
 
-    Historical evidence is reconstructed from the event repository.
-    Incident identity and membership are persisted separately.
+    Historical evidence is reconstructed only for incidents updated
+    within the configured candidate window.
     """
+    timestamp = (
+        observed_at
+        if observed_at is not None
+        else _utc_now()
+    )
+
+    candidate_window = _validate_lookback(
+        lookback
+    )
+
+    cutoff = (
+        timestamp
+        - candidate_window
+    )
+
     incidents = (
-        incident_repository.list_incidents()
+        incident_repository.recent_incidents(
+            since=cutoff
+        )
     )
 
     event_uids = _collect_event_uids(
@@ -100,7 +142,7 @@ def resolve_and_persist_incident(
         event,
         incidents=incidents,
         evidence_by_uid=evidence_by_uid,
-        observed_at=observed_at,
+        observed_at=timestamp,
         threshold=threshold,
     )
 

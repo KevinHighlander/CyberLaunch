@@ -10,6 +10,18 @@ from app.models.intelligence_incident import IntelligenceIncident
 from app.storage.database import DEFAULT_DATABASE_PATH
 
 
+def _validate_timestamp(
+    timestamp: datetime,
+) -> datetime:
+    """Require a timezone-aware timestamp."""
+    if timestamp.tzinfo is None:
+        raise ValueError(
+            "Incident query timestamps must be timezone-aware."
+        )
+
+    return timestamp
+
+
 class IncidentRepository:
     """SQLite repository for persistent intelligence incidents."""
 
@@ -276,6 +288,22 @@ class IncidentRepository:
 
         return tuple(
             incidents
+        )
+
+    def recent_incidents(
+        self,
+        *,
+        since: datetime,
+    ) -> tuple[IntelligenceIncident, ...]:
+        """Return incidents updated at or after a cutoff timestamp."""
+        cutoff = _validate_timestamp(
+            since
+        )
+
+        return tuple(
+            incident
+            for incident in self.list_incidents()
+            if incident.updated_at >= cutoff
         )
 
     def find_by_event(
