@@ -191,3 +191,38 @@ def test_knowledge_graph_does_not_invent_detected_entities() -> None:
 
     assert "russia" in china.neighbor_keys
     assert "russia" not in detected_entities
+
+def test_fused_event_has_deterministic_summary() -> None:
+    events = [
+        make_event(
+            "China launches military exercises around Taiwan",
+            source="Reuters",
+        ),
+        make_event(
+            "China begins military drills around Taiwan",
+            source="BBC",
+        ),
+    ]
+
+    fused = fuse_events(events)[0]
+
+    assert fused.summary == (
+        "2 reports from 2 independent sources describe "
+        "Military Exercise involving China, Taiwan."
+    )
+
+
+def test_single_report_summary_uses_singular_language() -> None:
+    fused = fuse_events(
+        [
+            make_event(
+                "North Korea conducts ballistic missile launch",
+                source="Reuters",
+            ),
+        ]
+    )[0]
+
+    assert fused.summary == (
+        "1 report from 1 source describe "
+        "Ballistic Missile Launch involving North Korea."
+    )

@@ -30,6 +30,7 @@ class FusedEvent:
 
     group: CorrelationGroup
     analysis: AnalysisResult
+    summary: str
     source_diversity: SourceDiversityResult
     knowledge_neighborhoods: tuple[KnowledgeNeighborhood, ...]
 
@@ -42,6 +43,50 @@ class FusedEvent:
     def is_corroborated(self) -> bool:
         """Return whether multiple independent sources support the event."""
         return self.group.is_corroborated
+
+
+def _build_fused_summary(
+    group: CorrelationGroup,
+    analysis: AnalysisResult,
+) -> str:
+    """Build a concise deterministic summary of a fused event."""
+    report_word = (
+        "report"
+        if group.event_count == 1
+        else "reports"
+    )
+
+    source_word = (
+        "source"
+        if group.source_count == 1
+        else "independent sources"
+    )
+
+    if analysis.indicators:
+        event_description = ", ".join(
+            indicator.display_name
+            for indicator in analysis.indicators
+        )
+    else:
+        event_description = "intelligence event"
+
+    if analysis.entities:
+        entity_names = ", ".join(
+            entity.display_name
+            for entity in analysis.entities
+        )
+
+        return (
+            f"{group.event_count} {report_word} from "
+            f"{group.source_count} {source_word} describe "
+            f"{event_description} involving {entity_names}."
+        )
+
+    return (
+        f"{group.event_count} {report_word} from "
+        f"{group.source_count} {source_word} describe "
+        f"{event_description}."
+    )
 
 
 def fuse_group(
@@ -74,6 +119,11 @@ def fuse_group(
         confidence=fused_confidence,
     )
 
+    summary = _build_fused_summary(
+        group,
+        analysis,
+    )
+
     source_diversity = assess_event_source_diversity(
         group.events
     )
@@ -88,6 +138,7 @@ def fuse_group(
     return FusedEvent(
         group=group,
         analysis=analysis,
+        summary=summary,
         source_diversity=source_diversity,
         knowledge_neighborhoods=knowledge_neighborhoods,
     )

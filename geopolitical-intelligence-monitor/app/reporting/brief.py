@@ -24,16 +24,16 @@ def _display_name(
     ).title()
 
 
-def _append_analysis(
+def _append_analysis_sections(
     lines: list[str],
     analysis: AnalysisResult,
+    *,
+    summary: str,
 ) -> None:
-    """Append standard analysis sections to a briefing."""
+    """Append common intelligence analysis sections."""
     lines.append("Summary")
     lines.append("-" * 54)
-    lines.append(
-        analysis.text
-    )
+    lines.append(summary)
     lines.append("")
 
     lines.append("Confidence")
@@ -121,9 +121,10 @@ def build_brief(
     lines.append("=" * 54)
     lines.append("")
 
-    _append_analysis(
+    _append_analysis_sections(
         lines,
         analysis,
+        summary=analysis.text,
     )
 
     lines.append("=" * 54)
@@ -148,14 +149,17 @@ def build_fused_brief(
 
     lines.append("Corroboration")
     lines.append("-" * 54)
+
     lines.append(
         f"Reports: "
         f"{fused_event.group.event_count}"
     )
+
     lines.append(
         f"Independent Sources: "
         f"{fused_event.source_count}"
     )
+
     lines.append(
         "Corroborated: "
         f"{'YES' if fused_event.is_corroborated else 'NO'}"
@@ -175,14 +179,17 @@ def build_fused_brief(
 
     lines.append("Source Diversity")
     lines.append("-" * 54)
+
     lines.append(
         f"Score: "
         f"{diversity.diversity_score}/100"
     )
+
     lines.append(
         f"Unique Countries: "
         f"{diversity.unique_countries}"
     )
+
     lines.append(
         f"Source Types: "
         f"{diversity.unique_source_types}"
@@ -200,6 +207,7 @@ def build_fused_brief(
             "Knowledge Context"
         )
         lines.append("-" * 54)
+
         lines.append(
             "Background relationships only; "
             "not evidence of event involvement."
@@ -233,9 +241,10 @@ def build_fused_brief(
 
         lines.append("")
 
-    _append_analysis(
+    _append_analysis_sections(
         lines,
         fused_event.analysis,
+        summary=fused_event.summary,
     )
 
     lines.append("=" * 54)
