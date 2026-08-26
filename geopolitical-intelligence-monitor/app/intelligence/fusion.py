@@ -9,11 +9,18 @@ from app.intelligence.correlation_groups import (
     CorrelationGroup,
     group_events,
 )
+from app.intelligence.knowledge_graph import (
+    KnowledgeGraph,
+    KnowledgeNeighborhood,
+)
 from app.intelligence.source_diversity import (
     SourceDiversityResult,
     assess_event_source_diversity,
 )
 from app.models.normalized_event import NormalizedEvent
+
+
+_KNOWLEDGE_GRAPH = KnowledgeGraph()
 
 
 @dataclass(frozen=True, slots=True)
@@ -23,6 +30,7 @@ class FusedEvent:
     group: CorrelationGroup
     analysis: AnalysisResult
     source_diversity: SourceDiversityResult
+    knowledge_neighborhoods: tuple[KnowledgeNeighborhood, ...]
 
     @property
     def source_count(self) -> int:
@@ -38,7 +46,7 @@ class FusedEvent:
 def fuse_group(
     group: CorrelationGroup,
 ) -> FusedEvent:
-    """Analyze a correlation group as one fused intelligence event."""
+    """Analyze and enrich one correlated intelligence event."""
     combined_text = " ".join(
         event.analysis_text
         for event in group.events
@@ -53,10 +61,18 @@ def fuse_group(
         group.events
     )
 
+    knowledge_neighborhoods = _KNOWLEDGE_GRAPH.snapshot(
+        tuple(
+            entity.key
+            for entity in analysis.entities
+        )
+    )
+
     return FusedEvent(
         group=group,
         analysis=analysis,
         source_diversity=source_diversity,
+        knowledge_neighborhoods=knowledge_neighborhoods,
     )
 
 

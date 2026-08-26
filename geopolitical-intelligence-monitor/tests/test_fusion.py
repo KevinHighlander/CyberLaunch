@@ -140,3 +140,54 @@ def test_fusion_confidence_uses_corroborating_sources() -> None:
         corroborated.analysis.confidence.score
         > single.analysis.confidence.score
     ) 
+
+def test_fused_event_includes_knowledge_neighborhoods() -> None:
+    events = [
+        make_event(
+            "China launches military exercises around Taiwan",
+            source="Reuters",
+        ),
+        make_event(
+            "China begins military drills near Taiwan",
+            source="BBC",
+        ),
+    ]
+
+    fused = fuse_events(events)[0]
+
+    entity_keys = tuple(
+        neighborhood.entity_key
+        for neighborhood in fused.knowledge_neighborhoods
+    )
+
+    assert "china" in entity_keys
+    assert "taiwan" in entity_keys
+
+
+def test_knowledge_graph_does_not_invent_detected_entities() -> None:
+    events = [
+        make_event(
+            "China launches military exercises around Taiwan",
+            source="Reuters",
+        ),
+        make_event(
+            "China begins military drills near Taiwan",
+            source="BBC",
+        ),
+    ]
+
+    fused = fuse_events(events)[0]
+
+    detected_entities = {
+        entity.key
+        for entity in fused.analysis.entities
+    }
+
+    china = next(
+        neighborhood
+        for neighborhood in fused.knowledge_neighborhoods
+        if neighborhood.entity_key == "china"
+    )
+
+    assert "russia" in china.neighbor_keys
+    assert "russia" not in detected_entities

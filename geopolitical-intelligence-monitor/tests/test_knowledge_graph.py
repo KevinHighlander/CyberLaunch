@@ -43,3 +43,44 @@ def test_unknown_entity_has_no_neighbors() -> None:
         )
         == ()
     )
+
+def test_snapshot_returns_entity_neighborhoods() -> None:
+    graph = KnowledgeGraph()
+
+    snapshot = graph.snapshot(
+        (
+            "russia",
+            "china",
+            "russia",
+        )
+    )
+
+    assert tuple(
+        neighborhood.entity_key
+        for neighborhood in snapshot
+    ) == (
+        "china",
+        "russia",
+    )
+
+    russia = next(
+        neighborhood
+        for neighborhood in snapshot
+        if neighborhood.entity_key == "russia"
+    )
+
+    assert "china" in russia.neighbor_keys
+    assert "iran" in russia.neighbor_keys
+    assert "north-korea" in russia.neighbor_keys
+
+
+def test_snapshot_preserves_unknown_entity() -> None:
+    graph = KnowledgeGraph()
+
+    snapshot = graph.snapshot(
+        ("moon",)
+    )
+
+    assert len(snapshot) == 1
+    assert snapshot[0].entity_key == "moon"
+    assert snapshot[0].neighbor_keys == ()
