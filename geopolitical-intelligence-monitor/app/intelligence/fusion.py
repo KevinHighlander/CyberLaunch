@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from app.intelligence.analyzer import AnalysisResult, analyze
+from app.intelligence.confidence import assess_fused_confidence
 from app.intelligence.correlation_groups import (
     CorrelationGroup,
     group_events,
@@ -55,6 +56,22 @@ def fuse_group(
     analysis = analyze(
         combined_text,
         corroborating_sources=group.source_count,
+    )
+
+    fused_confidence = assess_fused_confidence(
+        group.events
+    )
+
+    analysis = AnalysisResult(
+        text=analysis.text,
+        entities=analysis.entities,
+        indicators=analysis.indicators,
+        theaters=analysis.theaters,
+        impact=analysis.impact,
+        escalation=analysis.escalation,
+        context=analysis.context,
+        reasoning=analysis.reasoning,
+        confidence=fused_confidence,
     )
 
     source_diversity = assess_event_source_diversity(
