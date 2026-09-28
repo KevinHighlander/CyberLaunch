@@ -9,6 +9,7 @@ This is a briefing aid, not a forecast; always follow official instructions.
 from __future__ import annotations
 
 import argparse
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import hashlib
 import html
 from html.parser import HTMLParser
@@ -30,6 +31,7 @@ NHC_OUTLOOK_URL = "https://www.nhc.noaa.gov/xml/TWOAT.xml"
 NHC_DISCUSSION_URL = "https://www.nhc.noaa.gov/xml/TWDAT.xml"
 NHC_STORMS_URL = "https://www.nhc.noaa.gov/CurrentStorms.json"
 NWS_ALERTS_URL = "https://api.weather.gov/alerts/active"
+REQUEST_TIMEOUT_SECONDS = 8
 WATCH_STATES = ("FL", "GA", "SC", "NC", "VA")
 RELEVANT_ALERT_TERMS = (
     "hurricane", "tropical storm", "storm surge", "coastal flood",
@@ -127,7 +129,7 @@ def clean_text(value: str | None) -> str:
     return re.sub(r"\n{3,}", "\n\n", text).strip()
 
 
-def fetch_bytes(url: str, timeout: int = 25) -> bytes:
+def fetch_bytes(url: str, timeout: int = REQUEST_TIMEOUT_SECONDS) -> bytes:
     request = Request(
         url,
         headers={"User-Agent": USER_AGENT, "Accept": "application/json, application/xml, text/xml"},
@@ -557,12 +559,21 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--output-dir", help="Override report folder (normally auto-detected for Pyto).")
     parser.add_argument("--fixtures", help="Read TWOAT.xml, TWDAT.xml, CurrentStorms.json and alerts_STATE.json from this folder.")
     parser.add_argument("--sample", action="store_true", help="Use fictional built-in data and make no network requests.")
+    parser.add_argument(
+        "--timeout",
+        type=int,
+        default=REQUEST_TIMEOUT_SECONDS,
+        help="Maximum wait per official source in seconds (default: %(default)s).",
+    )
     parser.add_argument("--print-report", "--print", action="store_true", help="Print the full report, not only the Shortcuts flag.")
     args = parser.parse_args(argv)
     sample_default = str(Path.home() / "Documents" / "Hurricane Reports Demo") if args.sample and not args.output_dir else None
     output_dir = choose_output_directory(args.output_dir or sample_default)
     fixture_dir = Path(args.fixtures) if args.fixtures else None
     errors: list[str] = []
+
+    if args.timeout < 1:
+        parser.error("--timeout must be at least 1 second")
 
     def get_rss(filename: str, url: str) -> tuple[str, str]:
         if fixture_dir:
@@ -571,42 +582,58 @@ def main(argv: list[str] | None = None) -> int:
             if item is None:
                 raise ValueError(f"{filename} has no RSS item")
             return clean_text(item.findtext("title")), clean_text(item.findtext("description"))
-        return fetch_rss_text(url)
+        return fetch_rss_text_with_timeout(url, args.timeout)
 
-    try:
-        _, outlook_text = ("Sample outlook", SAMPLE_OUTLOOK_TEXT) if args.sample else get_rss("TWOAT.xml", NHC_OUTLOOK_URL)
-        disturbances = parse_outlook(outlook_text)
-    except Exception as exc:
-        disturbances = []
-        errors.append(f"NHC outlook unavailable: {type(exc).__name__}: {exc}")
-    try:
-        _, discussion_text = ("Sample discussion", SAMPLE_DISCUSSION_TEXT) if args.sample else get_rss("TWDAT.xml", NHC_DISCUSSION_URL)
-        waves = parse_tropical_waves(discussion_text)
-    except Exception as exc:
-        waves = []
-        errors.append(f"NHC discussion unavailable: {type(exc).__name__}: {exc}")
-    try:
+    def fetch_rss_text_with_timeout(url: str, timeout: int) -> tuple[str, str]:
+        root = ET.fromstring(fetch_bytes(url, timeout))
+        items = root.findall(".//item")
+        if not items:
+            raise ValueError("RSS feed contained no items")
+        item = items[0]
+        return clean_text(item.findtext("title")), clean_text(item.findtext("description"))
+
+    def get_storms() -> list[dict]:
         if args.sample:
-            storms_payload = SAMPLE_STORMS
-        else:
-            storms_payload = json.loads((fixture_dir / "CurrentStorms.json").read_text()) if fixture_dir else fetch_json(NHC_STORMS_URL)
-        storms = parse_active_storms(storms_payload)
-    except Exception as exc:
-        storms = []
-        errors.append(f"NHC active storms unavailable: {type(exc).__name__}: {exc}")
+            return parse_active_storms(SAMPLE_STORMS)
+        payload = json.loads((fixture_dir / "CurrentStorms.json").read_text()) if fixture_dir else json.loads(fetch_bytes(NHC_STORMS_URL, args.timeout).decode("utf-8"))
+        return parse_active_storms(payload)
 
-    alerts: list[dict] = []
-    for state in WATCH_STATES:
-        try:
-            if args.sample:
-                payload = SAMPLE_ALERT if state == "FL" else {"features": []}
-            elif fixture_dir:
-                payload = json.loads((fixture_dir / f"alerts_{state}.json").read_text())
-            else:
-                payload = fetch_json(f"{NWS_ALERTS_URL}?{urlencode({'area': state, 'status': 'actual'})}")
-            alerts.extend(parse_alerts(payload, state))
-        except Exception as exc:
-            errors.append(f"NWS alerts for {state} unavailable: {type(exc).__name__}: {exc}")
+    def get_alerts(state: str) -> list[dict]:
+        if args.sample:
+            return parse_alerts(SAMPLE_ALERT if state == "FL" else {"features": []}, state)
+        payload = json.loads((fixture_dir / f"alerts_{state}.json").read_text()) if fixture_dir else json.loads(fetch_bytes(f"{NWS_ALERTS_URL}?{urlencode({'area': state, 'status': 'actual'})}", args.timeout).decode("utf-8"))
+        return parse_alerts(payload, state)
+
+    # These sources are independent. Fetching them together keeps a slow alert
+    # endpoint from exhausting Shortcuts' limited background execution window.
+    tasks = {
+        "outlook": lambda: parse_outlook(SAMPLE_OUTLOOK_TEXT) if args.sample else parse_outlook(get_rss("TWOAT.xml", NHC_OUTLOOK_URL)[1]),
+        "discussion": lambda: parse_tropical_waves(SAMPLE_DISCUSSION_TEXT) if args.sample else parse_tropical_waves(get_rss("TWDAT.xml", NHC_DISCUSSION_URL)[1]),
+        "storms": get_storms,
+        **{f"alerts:{state}": lambda state=state: get_alerts(state) for state in WATCH_STATES},
+    }
+    results: dict[str, list[dict]] = {}
+    with ThreadPoolExecutor(max_workers=len(tasks)) as executor:
+        pending = {executor.submit(task): name for name, task in tasks.items()}
+        for future in as_completed(pending):
+            name = pending[future]
+            try:
+                results[name] = future.result()
+            except Exception as exc:
+                results[name] = []
+                if name.startswith("alerts:"):
+                    errors.append(f"NWS alerts for {name.split(':', 1)[1]} unavailable: {type(exc).__name__}: {exc}")
+                elif name == "outlook":
+                    errors.append(f"NHC outlook unavailable: {type(exc).__name__}: {exc}")
+                elif name == "discussion":
+                    errors.append(f"NHC discussion unavailable: {type(exc).__name__}: {exc}")
+                else:
+                    errors.append(f"NHC active storms unavailable: {type(exc).__name__}: {exc}")
+
+    disturbances = results["outlook"]
+    waves = results["discussion"]
+    storms = results["storms"]
+    alerts = [alert for state in WATCH_STATES for alert in results[f"alerts:{state}"]]
 
     status = calculate_status(disturbances, storms, alerts)
     core_failures = sum(
